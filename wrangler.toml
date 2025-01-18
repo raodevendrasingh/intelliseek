@@ -1,0 +1,21 @@
+name = "chat-pdf"
+compatibility_date = "2025-01-09"
+compatibility_flags = ["nodejs_compat"]
+pages_build_output_dir = ".vercel/output/static"
+
+[ai]
+binding = "AI"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "ragchat"
+database_id = "ef882971-d771-41ff-8841-f04017cb000f"
+migrations_dir = "drizzle/migrations"
+
+[[vectorize]]
+binding = "VECTORIZE"
+index_name = "ragdocs-index"
+
+[[r2_buckets]]
+bucket_name = "ragstore"
+binding = "ragstore"
