@@ -8,12 +8,15 @@ export const env = createEnv({
         CLOUDFLARE_DATABASE_ID: z.string().min(1),
         CLOUDFLARE_D1_TOKEN: z.string().min(1),
     },
-    client: {},
+    client: {
+        NEXT_PUBLIC_BASE_URL: z.string().min(1),
+    },
     shared: {
         NODE_ENV: z.enum(["development", "production"]),
     },
     runtimeEnv: {
         NODE_ENV: process.env.NODE_ENV,
+        NEXT_PUBLIC_BASE_URL: process.env.NEXT_PUBLIC_BASE_URL,
         CLOUDFLARE_ACCOUNT_ID: process.env.CLOUDFLARE_ACCOUNT_ID,
         CLOUDFLARE_DATABASE_ID: process.env.CLOUDFLARE_DATABASE_ID,
         CLOUDFLARE_D1_TOKEN: process.env.CLOUDFLARE_D1_TOKEN,
