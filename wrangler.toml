@@ -1,4 +1,4 @@
-name = "chat-pdf"
+name = "docverse"
 compatibility_date = "2025-01-09"
 compatibility_flags = ["nodejs_compat"]
 pages_build_output_dir = ".vercel/output/static"
@@ -10,7 +10,7 @@ binding = "AI"
 binding = "DB"
 database_name = "ragchat"
 database_id = "ef882971-d771-41ff-8841-f04017cb000f"
-migrations_dir = "drizzle/migrations"
+migrations_dir = "./src/db/migrations"
 
 [[vectorize]]
 binding = "VECTORIZE"

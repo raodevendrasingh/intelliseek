@@ -1,7 +1,7 @@
 import { drizzle } from "drizzle-orm/d1";
 
 export interface Env {
-	DB: D1Database;
+    DB: D1Database;
 }
 
 declare const env: Env;
