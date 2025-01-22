@@ -1,5 +1,5 @@
 name = "docverse"
-compatibility_date = "2025-01-09"
+compatibility_date = "2024-12-30"
 compatibility_flags = ["nodejs_compat"]
 pages_build_output_dir = ".vercel/output/static"
 
@@ -8,8 +8,8 @@ binding = "AI"
 
 [[d1_databases]]
 binding = "DB"
-database_name = "ragchat"
-database_id = "ef882971-d771-41ff-8841-f04017cb000f"
+database_name = "docverse"
+database_id = "f63826e9-53e6-450f-9d05-bade35e89a66"
 migrations_dir = "./src/db/migrations"
 
 [[vectorize]]
