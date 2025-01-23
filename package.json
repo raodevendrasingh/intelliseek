@@ -6,9 +6,10 @@
         "dev": "npm run format && next dev --turbopack",
         "build": "next build",
         "start": "next start",
-        "lint": "biome lint .",
-        "format": "biome format --write .",
-        "check": "biome check .",
+        "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
+        "format": "count=$(prettier --write . --log-level silent | grep -v '(unchanged)' | wc -l); echo \"$count files formatted\"",
+        "check": "npm run lint && npm run format:check",
+        "format:check": "prettier --check .",
         "pages:build": "bunx @cloudflare/next-on-pages",
         "preview": "bun pages:build && wrangler pages dev --experimental-vectorize-bind-to-prod",
         "deploy": "bun pages:build && wrangler pages deploy",
@@ -46,7 +47,6 @@
         "zod": "^3.24.1"
     },
     "devDependencies": {
-        "@biomejs/biome": "1.9.4",
         "@cloudflare/next-on-pages": "1",
         "@cloudflare/workers-types": "^4.20250109.0",
         "@types/node": "^20",
