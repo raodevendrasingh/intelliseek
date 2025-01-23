@@ -4,26 +4,26 @@ import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
 const outfit = Outfit({
-    variable: "--font-outfit",
-    subsets: ["latin"],
+	variable: "--font-outfit",
+	subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
-    title: "Docverse",
-    description: "",
+	title: "Dropbase",
+	description: "",
 };
 
 export default function RootLayout({
-    children,
+	children,
 }: Readonly<{
-    children: React.ReactNode;
+	children: React.ReactNode;
 }>) {
-    return (
-        <html lang="en">
-            <body className={`${outfit.className} antialiased`}>
-                {children}
-                <Toaster />
-            </body>
-        </html>
-    );
+	return (
+		<html lang="en">
+			<body className={`${outfit.className} antialiased`}>
+				{children}
+				<Toaster />
+			</body>
+		</html>
+	);
 }
