@@ -1,0 +1,1 @@
+ALTER TABLE `chat` ADD `title` text NOT NULL;

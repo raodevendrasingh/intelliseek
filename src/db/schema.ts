@@ -68,3 +68,50 @@ export const verification = sqliteTable("verification", {
     createdAt: integer("created_at", { mode: "timestamp" }),
     updatedAt: integer("updated_at", { mode: "timestamp" }),
 });
+
+export const chat = sqliteTable("chat", {
+    id: text("id").primaryKey(),
+    title: text("title").notNull(),
+    userId: text("user_id")
+        .notNull()
+        .references(() => user.id, { onDelete: "cascade" }),
+    createdAt: integer("created_at", { mode: "timestamp" })
+        .notNull()
+        .default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+        .notNull()
+        .default(sql`CURRENT_TIMESTAMP`),
+});
+
+export const context = sqliteTable("context", {
+    id: text("id").primaryKey(),
+    chatId: text("chat_id")
+        .notNull()
+        .references(() => chat.id, { onDelete: "cascade" }),
+    type: text("type", { enum: ["text", "file", "image"] })
+        .notNull()
+        .default("text"),
+    content: text("content").notNull(),
+    filePath: text("file_path"),
+    createdAt: integer("created_at", { mode: "timestamp" })
+        .notNull()
+        .default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+        .notNull()
+        .default(sql`CURRENT_TIMESTAMP`),
+});
+
+export const messages = sqliteTable("messages", {
+    id: text("id").primaryKey(),
+    chatId: text("chat_id")
+        .notNull()
+        .references(() => chat.id, { onDelete: "cascade" }),
+    query: text("query").notNull(),
+    response: text("response").notNull(),
+    createdAt: integer("created_at", { mode: "timestamp" })
+        .notNull()
+        .default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+        .notNull()
+        .default(sql`CURRENT_TIMESTAMP`),
+});
