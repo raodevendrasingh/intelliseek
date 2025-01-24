@@ -22,15 +22,12 @@ import { Textarea } from "./ui/textarea";
 import { useState } from "react";
 import { LoaderButton } from "./loader-button";
 import { Button } from "./ui/button";
+import { textContextSchema } from "@/lib/app-schema";
 
 interface TextDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
 }
-
-const textContextSchema = z.object({
-    content: z.string().min(256, "Content should be more than 256 characters"),
-});
 
 export default function TextDialog({ open, onOpenChange }: TextDialogProps) {
     const [isPending, setPending] = useState<boolean>(false);
@@ -53,8 +50,10 @@ export default function TextDialog({ open, onOpenChange }: TextDialogProps) {
                 },
                 body: JSON.stringify(queryData),
             });
+            const data = await response.json();
+            console.log(data);
             if (response.ok) {
-                alert("Context uploaded, you can close this dialog!");
+                console.log("Context uploaded, you can close this dialog!");
                 form.reset();
                 onOpenChange(false);
             }
@@ -86,7 +85,7 @@ export default function TextDialog({ open, onOpenChange }: TextDialogProps) {
                                             <Textarea
                                                 placeholder=""
                                                 className="resize-none w-full border-0"
-                                                rows={8}
+                                                rows={10}
                                                 {...field}
                                             />
                                         </FormControl>

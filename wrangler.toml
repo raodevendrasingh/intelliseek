@@ -17,7 +17,7 @@ migrations_dir = "./src/db/migrations"
 
 [[vectorize]]
 binding = "VECTORIZE"
-index_name = "ragdocs-index"
+index_name = "dropbase-index"
 
 [[r2_buckets]]
 bucket_name = "ragstore"
