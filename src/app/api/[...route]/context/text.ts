@@ -53,10 +53,10 @@ app.post("/", zValidator("json", textContextSchema), async (c) => {
             updatedAt: new Date(),
         });
 
-        const { AI, VECTORIZE } = c.env;
-
         // 5. Create embeddings for the context
         if (c.env) {
+            const { AI, VECTORIZE } = c.env;
+
             // Debugging
             console.log("Environment Bindings: ", c.env);
             console.log("AI Binding: ", AI);
@@ -85,6 +85,7 @@ app.post("/", zValidator("json", textContextSchema), async (c) => {
             }
         } else {
             console.error("Environment not found");
+            return c.json({ error: "Environment bindings inaccessible" }, 500);
         }
 
         return c.json({

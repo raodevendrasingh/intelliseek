@@ -6,14 +6,15 @@ pages_build_output_dir = ".vercel/output/static"
 [observability]
 enabled = true
 
-[ai]
-binding = "AI"
 
 [[d1_databases]]
 binding = "DB"
 database_name = "docverse"
 database_id = "f63826e9-53e6-450f-9d05-bade35e89a66"
 migrations_dir = "./src/db/migrations"
+
+[ai]
+binding = "AI"
 
 [[vectorize]]
 binding = "VECTORIZE"
