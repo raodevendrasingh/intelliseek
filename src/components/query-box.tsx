@@ -55,7 +55,7 @@ export const QueryBox = ({ windowType, chatId: propChatId }: QueryBoxProps) => {
     const placeholderMsg: string =
         windowType === "home"
             ? "Upload a context and start a conversation..."
-            : "Ask DropBase...";
+            : "Ask Intelliseek...";
 
     const totalRows: number = windowType === "home" ? 0 : 2;
 
@@ -150,7 +150,7 @@ export const QueryBox = ({ windowType, chatId: propChatId }: QueryBoxProps) => {
 
                             <Button
                                 size="icon"
-                                className="h-8 w-8 rounded-full bg-emerald-500 hover:bg-emerald-700 cursor-pointer"
+                                className="h-8 w-8 rounded-full cursor-pointer"
                                 onClick={form.handleSubmit(onSubmit)}
                                 disabled={isQueryEmpty}
                             >

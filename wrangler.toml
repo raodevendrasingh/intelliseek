@@ -1,4 +1,4 @@
-name = "dropbase"
+name = "intelliseek"
 compatibility_date = "2024-12-30"
 compatibility_flags = ["nodejs_compat"]
 pages_build_output_dir = ".vercel/output/static"
@@ -25,4 +25,4 @@ bucket_name = "ragstore"
 binding = "ragstore"
 
 [vars]
-# add your vars here
+NEXT_PUBLIC_BASE_URL = "https://intelliseek.pages.dev"

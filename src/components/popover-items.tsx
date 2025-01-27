@@ -45,7 +45,7 @@ export default function PopoverItems({ setActiveDialog }: PopoverItemsProps) {
             <TooltipProvider>
                 <Tooltip>
                     <PopoverTrigger asChild>
-                        <TooltipTrigger className="flex items-center gap-1 rounded-full h-8 px-2 border hover:text-emerald-600 hover:bg-emerald-100 hover:border-emerald-600 bg-white transition-colors text-primary/70">
+                        <TooltipTrigger className="flex items-center gap-1 rounded-full h-8 px-2 text-primary bg-muted-foreground/20 hover:bg-accent-foreground/20 transition-colors">
                             <Paperclip size={18} />
                             <span className="text-sm">Context</span>
                         </TooltipTrigger>
@@ -55,7 +55,7 @@ export default function PopoverItems({ setActiveDialog }: PopoverItemsProps) {
                     </TooltipContent>
                 </Tooltip>
             </TooltipProvider>
-            <PopoverContent className="rounded-3xl w-fit p-2">
+            <PopoverContent className="rounded-2xl w-fit p-2 bg-popover/60 backdrop-blur-lg">
                 {popoverItems.map((item, index) => (
                     <div
                         key={index}

@@ -13,20 +13,15 @@ import {
 } from "@/components/ui/sidebar";
 import { ChatMenu } from "@/components/chat-menu";
 import { NewChat } from "@/components/new-chat";
+import { BrandLogo } from "@/app/(marketing)/_components/brand-logo";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     return (
         <Sidebar {...props}>
             <SidebarHeader>
                 <SidebarMenu>
-                    <SidebarMenuItem>
-                        <SidebarMenuButton size="lg" asChild>
-                            <Link href="#">
-                                <div className="flex items-center justify-center text-2xl font-bold">
-                                    DropBase
-                                </div>
-                            </Link>
-                        </SidebarMenuButton>
+                    <SidebarMenuItem className="py-2 self-center">
+                        <BrandLogo />
                     </SidebarMenuItem>
                 </SidebarMenu>
             </SidebarHeader>

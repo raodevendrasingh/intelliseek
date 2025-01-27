@@ -15,7 +15,7 @@ export default function CTA() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6 }}
-                className="bg-black text-white rounded-3xl px-6 py-16 sm:p-16 md:p-24 shadow-2xl"
+                className="bg-accent/20 text-white rounded-3xl px-6 py-16 sm:p-16 md:p-24 shadow-2xl"
             >
                 <div className="mx-auto max-w-2xl text-center">
                     <motion.h2

@@ -7,7 +7,7 @@
         "build": "next build",
         "start": "next start",
         "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
-        "format": "count=$(prettier --write . --log-level silent | grep -v '(unchanged)' | wc -l); echo \"$count files formatted\"",
+        "format": "prettier --write . --log-level silent",
         "check": "npm run lint && npm run format:check",
         "format:check": "prettier --check .",
         "pages:build": "bunx @cloudflare/next-on-pages",

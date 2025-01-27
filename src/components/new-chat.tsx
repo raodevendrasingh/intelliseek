@@ -6,7 +6,7 @@ export function NewChat() {
     return (
         <div className="px-2">
             <Link href="/chat">
-                <Button variant="secondary" className="w-full">
+                <Button variant="secondary" className="w-full rounded-xl">
                     <MessagesSquare />
                     New Chat
                 </Button>
