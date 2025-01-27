@@ -17,13 +17,13 @@ export default function Footer() {
                 </div>
                 <div className="flex gap-4">
                     <Link
-                        href="#"
+                        href="/legal/terms-of-service"
                         className="text-sm hover:underline underline-offset-4"
                     >
                         Terms
                     </Link>
                     <Link
-                        href="#"
+                        href="/legal/privacy-policy"
                         className="text-sm hover:underline underline-offset-4"
                     >
                         Privacy
