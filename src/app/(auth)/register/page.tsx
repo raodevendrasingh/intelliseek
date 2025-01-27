@@ -1,8 +1,7 @@
 "use client";
 
 import { Input } from "@/components/ui/input";
-import { GalleryVerticalEnd } from "lucide-react";
-import { GoogleAuthButton } from "../_components/GoogleAuthButton";
+import { GoogleAuthButton } from "@/app/(auth)/_components/GoogleAuthButton";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -21,6 +20,7 @@ import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import Link from "next/link";
+import { BrandLogo } from "@/app/(marketing)/_components/brand-logo";
 
 export default function RegisterPage() {
     const [isLoading, setLoading] = useState<boolean>(false);
@@ -71,15 +71,7 @@ export default function RegisterPage() {
                 <div className="flex flex-col gap-6">
                     <div className="flex flex-col gap-6">
                         <div className="flex flex-col items-center gap-2">
-                            <Link
-                                href="/"
-                                className="flex flex-col items-center gap-2 font-medium"
-                            >
-                                <div className="flex h-8 w-8 items-center justify-center rounded-md">
-                                    <GalleryVerticalEnd className="size-6" />
-                                </div>
-                                <span className="sr-only">Dovserse</span>
-                            </Link>
+                            <BrandLogo />
                             <h1 className="text-xl font-bold">Register</h1>
                             <div className="text-center text-sm">
                                 Already have an account?{" "}
