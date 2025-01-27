@@ -12,7 +12,7 @@ export default function ChatPage(props: { params: Params }) {
     const slug = params.slug;
 
     return (
-        <div className="w-full mx-auto min-h-screen flex">
+        <div className="w-full mx-auto h-[calc(100vh-52px)] flex">
             <div className="absolute bottom-10 flex flex-col w-full mx-auto">
                 <QueryBox windowType="chat" chatId={slug} />
             </div>
