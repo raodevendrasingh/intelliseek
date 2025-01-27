@@ -13,6 +13,7 @@ import {
     SidebarProvider,
     SidebarTrigger,
 } from "@/components/ui/sidebar";
+import { UserMenuDropdown } from "@/components/user-dropdown";
 
 export default function CoreLayout({
     children,
@@ -24,7 +25,7 @@ export default function CoreLayout({
             <SidebarProvider>
                 <AppSidebar />
                 <SidebarInset>
-                    <header className="flex h-12 shrink-0 items-center gap-2 border-b px-4">
+                    <header className="flex h-14 shrink-0 items-center gap-2 border-b px-4">
                         <SidebarTrigger className="-ml-1" />
                         <Separator
                             orientation="vertical"
@@ -39,6 +40,7 @@ export default function CoreLayout({
                                 </BreadcrumbItem>
                             </BreadcrumbList>
                         </Breadcrumb>
+                        <UserMenuDropdown />
                     </header>
                     <div className="flex flex-1">{children}</div>
                 </SidebarInset>
