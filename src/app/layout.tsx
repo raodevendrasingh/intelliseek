@@ -9,8 +9,8 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-    title: "Dropbase",
-    description: "",
+    title: "Intelliseek",
+    description: "AI Based Information Retrival from the Provided Context.",
 };
 
 export default function RootLayout({
@@ -19,7 +19,7 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <html lang="en">
+        <html lang="en" className="dark" suppressHydrationWarning>
             <body className={`${outfit.className} antialiased`}>
                 {children}
                 <Toaster />
