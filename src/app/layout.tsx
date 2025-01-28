@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Outfit } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
+import QueryProviders from "@/providers/query-provider";
 
 export const metadata: Metadata = {
     title: "Intelliseek",
@@ -41,7 +42,7 @@ export default function RootLayout({
                 <link rel="manifest" href="/site.webmanifest" />
             </head>
             <body className={`${outfit.className} antialiased`}>
-                {children}
+                <QueryProviders>{children}</QueryProviders>
                 <Toaster />
             </body>
         </html>
