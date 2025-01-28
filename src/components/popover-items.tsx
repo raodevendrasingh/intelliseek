@@ -12,7 +12,7 @@ import {
 import { TextT, FileImage, GlobeSimple } from "@phosphor-icons/react";
 import { Paperclip } from "lucide-react";
 
-export type DialogType = "text" | "files" | "weblinks" | null;
+export type DialogType = "text" | "file" | "link" | null;
 
 const popoverItems = [
     {
@@ -25,13 +25,13 @@ const popoverItems = [
         title: "Files",
         icon: FileImage,
         color: "text-green-500",
-        dialogKey: "files" as DialogType,
+        dialogKey: "file" as DialogType,
     },
     {
         title: "WebLinks",
         icon: GlobeSimple,
         color: "text-blue-500",
-        dialogKey: "weblinks" as DialogType,
+        dialogKey: "link" as DialogType,
     },
 ] as const;
 

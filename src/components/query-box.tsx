@@ -24,7 +24,7 @@ import { GenerateUUID } from "@/utils/generate-uuid";
 import UploadDialog from "./upload-dialog";
 import URLDialog from "./url-dialog";
 
-type DialogType = "text" | "files" | "weblinks" | null;
+type DialogType = "text" | "file" | "link" | null;
 
 type QueryBoxProps = {
     windowType: "chat" | "home";
@@ -176,12 +176,12 @@ export const QueryBox = ({ windowType, chatId: propChatId }: QueryBoxProps) => {
             />
 
             <UploadDialog
-                open={activeDialog === "files"}
+                open={activeDialog === "file"}
                 onOpenChange={() => setActiveDialog(null)}
             />
 
             <URLDialog
-                open={activeDialog === "weblinks"}
+                open={activeDialog === "link"}
                 onOpenChange={() => setActiveDialog(null)}
             />
         </>

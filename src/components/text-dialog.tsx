@@ -23,6 +23,7 @@ import { useState } from "react";
 import { LoaderButton } from "./loader-button";
 import { Button } from "./ui/button";
 import { textContextSchema } from "@/lib/app-schema";
+import { ContextApiResponse } from "@/types/ApiResponse";
 
 interface TextDialogProps {
     open: boolean;
@@ -38,7 +39,7 @@ export default function TextDialog({ open, onOpenChange }: TextDialogProps) {
         },
     });
 
-    const isQueryEmpty = form.watch("content") === "";
+    const isContentEmpty = form.watch("content") === "";
 
     const onSubmit = async (queryData: z.infer<typeof textContextSchema>) => {
         setPending(true);
@@ -50,7 +51,7 @@ export default function TextDialog({ open, onOpenChange }: TextDialogProps) {
                 },
                 body: JSON.stringify(queryData),
             });
-            const data = await response.json();
+            const data = (await response.json()) as ContextApiResponse;
             console.log(data);
             if (response.ok) {
                 console.log("Context uploaded, you can close this dialog!");
@@ -83,7 +84,7 @@ export default function TextDialog({ open, onOpenChange }: TextDialogProps) {
                                     <FormItem>
                                         <FormControl>
                                             <Textarea
-                                                placeholder=""
+                                                placeholder="Start here"
                                                 className="resize-none w-full border-0"
                                                 rows={10}
                                                 {...field}
@@ -96,21 +97,21 @@ export default function TextDialog({ open, onOpenChange }: TextDialogProps) {
                         </form>
                     </Form>
                 </div>
-                <DialogFooter>
+                <DialogFooter className="flex flex-row items-center gap-2">
                     <Button
                         onClick={() => onOpenChange(false)}
                         variant="secondary"
-                        className="w-36"
+                        className="w-1/2 rounded-full"
                     >
                         Close
                     </Button>
                     <LoaderButton
                         isLoading={isPending}
                         onClick={form.handleSubmit(onSubmit)}
-                        disabled={isQueryEmpty || isPending}
-                        className="w-36"
+                        disabled={isContentEmpty || isPending}
+                        className="w-1/2 rounded-full"
                     >
-                        {isPending ? "Uploading" : "Upload Context"}
+                        {isPending ? "Uploading..." : "Upload Context"}
                     </LoaderButton>
                 </DialogFooter>
             </DialogContent>
