@@ -13,3 +13,7 @@ export const textContextSchema = z.object({
         .min(32, "Context must be at least 32 characters long.")
         .max(4096, "Context cannot exceed 4096 characters."),
 });
+
+export const webLinkSchema = z.object({
+    link: z.string().url(),
+});
