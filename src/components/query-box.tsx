@@ -21,6 +21,7 @@ import TextDialog from "@/components/text-dialog";
 import PopoverItems from "@/components/popover-items";
 import clsx from "clsx";
 import { GenerateUUID } from "@/utils/generate-uuid";
+import UploadDialog from "./upload-dialog";
 
 type DialogType = "text" | "files" | "weblinks" | null;
 
@@ -170,6 +171,11 @@ export const QueryBox = ({ windowType, chatId: propChatId }: QueryBoxProps) => {
 
             <TextDialog
                 open={activeDialog === "text"}
+                onOpenChange={() => setActiveDialog(null)}
+            />
+
+            <UploadDialog
+                open={activeDialog === "files"}
                 onOpenChange={() => setActiveDialog(null)}
             />
         </>
