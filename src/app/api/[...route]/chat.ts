@@ -50,6 +50,38 @@ const app = new Hono()
             console.error("Error fetching chats: ", error);
             return c.json({ error: "Failed to fetch chats" }, 500);
         }
+    })
+    .get("/:id", async (c) => {
+        try {
+            const chatId = c.req.param("id");
+            const session = await auth.api.getSession({
+                headers: await headers(),
+            });
+
+            if (!session) {
+                return c.json({ error: "Not authenticated" }, 401);
+            }
+            const db = getDrizzleDb();
+
+            const [currentChat] = await db
+                .select()
+                .from(chat)
+                .where(eq(chat.id, chatId));
+
+            if (!currentChat) {
+                return c.json({ error: "Chat not found" }, 404);
+            }
+
+            return c.json(
+                {
+                    currentChat,
+                },
+                200,
+            );
+        } catch (error) {
+            console.error("Error fetching chat: ", error);
+            return c.json({ error: "Failed to fetch chat" }, 500);
+        }
     });
 
 export default app;

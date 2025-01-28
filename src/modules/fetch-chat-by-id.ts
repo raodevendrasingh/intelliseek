@@ -1,19 +1,21 @@
 import { useQuery } from "@tanstack/react-query";
 import { client } from "@/lib/hono-client";
 
-export const useFetchChats = () => {
+export const useFetchChatById = (chatId: string) => {
     const query = useQuery({
-        queryKey: ["fetch-chats"],
+        queryKey: ["fetch-chat-by-id", chatId],
         queryFn: async () => {
-            const res = await client.api.chat.$get();
+            const res = await client.api.chat[":id"].$get({
+                param: { id: chatId },
+            });
 
             if (!res.ok) {
-                throw Error("failed to fetch chats");
+                throw new Error("Failed to fetch chat");
             }
             const data = await res.json();
             return data;
         },
-        staleTime: 60000,
+        enabled: !!chatId,
     });
     return query;
 };

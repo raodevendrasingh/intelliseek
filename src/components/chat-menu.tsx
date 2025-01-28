@@ -20,7 +20,7 @@ import { toast } from "sonner";
 export function ChatMenu() {
     const { data, isLoading, isError, error } = useFetchChats();
 
-    if (!data || isError) {
+    if ((!data || isError) && !isLoading) {
         console.log("error fetching data", error);
         toast.error("Failed to fetch chats");
     }
