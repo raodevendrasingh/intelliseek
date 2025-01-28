@@ -12,62 +12,55 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { Trash2 } from "lucide-react";
-
-interface Items {
-    title: string;
-    url: string;
-    isActive?: boolean;
-}
-[];
-// This is sample data.
-const data: Items[] = [
-    {
-        title: "Getting Started",
-        url: "/chat/ksdbkjbskjdfjksdgfjksgdjk",
-    },
-    {
-        title: "Building Your Application",
-        url: "/chat/sklnvlkjbljblkjdvjkasdnvbs",
-    },
-    {
-        title: "API Reference",
-        url: "/chat/sadkjbkjsbkdvjbskdjvbksjdbv",
-    },
-    {
-        title: "Architecture",
-        url: "/chat/sdhvhjsdbvkjasbkjdvbjkasbdvkj",
-    },
-];
+import { useFetchChats } from "@/modules/fetch-chats";
+import { Loader2, Trash2 } from "lucide-react";
+import Link from "next/link";
+import { toast } from "sonner";
 
 export function ChatMenu() {
-    const handleDeleteChat = () => {
-        console.log("chat deleted");
+    const { data, isLoading, isError, error } = useFetchChats();
+
+    if (!data || isError) {
+        console.log("error fetching data", error);
+        toast.error("Failed to fetch chats");
+    }
+
+    const handleDeleteChat = (id: string) => {
+        return console.log("chat deleted with id: ", id);
     };
 
     return (
         <SidebarGroup className="group-data-[collapsible=icon]:hidden">
             <SidebarGroupLabel>Chats</SidebarGroupLabel>
             <SidebarMenu>
-                {data.map((item) => (
-                    <SidebarMenuItem key={item.title}>
-                        <SidebarMenuButton asChild>
-                            <a href={item.url}>
-                                <span>{item.title}</span>
-                            </a>
-                        </SidebarMenuButton>
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <SidebarMenuAction
-                                    showOnHover
-                                    onClick={handleDeleteChat}
-                                >
-                                    <Trash2 className="text-rose-600" />
-                                </SidebarMenuAction>
-                            </DropdownMenuTrigger>
-                        </DropdownMenu>
-                    </SidebarMenuItem>
-                ))}
+                {isLoading ? (
+                    <span className="self-center">
+                        <Loader2 size={16} className="animate-spin" />
+                    </span>
+                ) : (
+                    data &&
+                    data.chats.map((item) => (
+                        <SidebarMenuItem key={item.id}>
+                            <SidebarMenuButton asChild>
+                                <Link href={`/chat/${item.id}`}>
+                                    <span>{item.title}</span>
+                                </Link>
+                            </SidebarMenuButton>
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <SidebarMenuAction
+                                        showOnHover
+                                        onClick={() =>
+                                            handleDeleteChat(item.id)
+                                        }
+                                    >
+                                        <Trash2 className="text-rose-600" />
+                                    </SidebarMenuAction>
+                                </DropdownMenuTrigger>
+                            </DropdownMenu>
+                        </SidebarMenuItem>
+                    ))
+                )}
             </SidebarMenu>
         </SidebarGroup>
     );
