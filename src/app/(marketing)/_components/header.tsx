@@ -3,17 +3,21 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Menu, X } from "lucide-react";
+import { Menu, MoveRight, X } from "lucide-react";
 import { BrandLogo } from "./brand-logo";
 import { motion, AnimatePresence } from "motion/react";
+import { authClient } from "@/lib/auth-client";
+import { Separator } from "@/components/ui/separator";
 
 export default function Header() {
     const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
 
+    const { data: session } = authClient.useSession();
+
     return (
         <header className="fixed left-1/2 -translate-x-1/2 top-2 z-50 w-full max-w-7xl mx-auto px-2">
-            <div className="container mx-auto border border-border bg-background/5 rounded-xl backdrop-blur-xl">
-                <div className=" flex h-16 items-center justify-between rounded-xl px-5">
+            <div className="container mx-auto border border-border bg-background/50 rounded-2xl backdrop-blur-xl">
+                <div className=" flex h-16 items-center justify-between px-5">
                     <div className="flex items-center space-x-4">
                         <BrandLogo />
                     </div>
@@ -32,12 +36,33 @@ export default function Header() {
                         </Link>
                     </nav>
                     <div className="hidden md:flex items-center space-x-4">
-                        <Link href="/login">
-                            <Button variant="outline">Login</Button>
-                        </Link>
-                        <Link href="/register">
-                            <Button>Get Started</Button>
-                        </Link>
+                        {session ? (
+                            <Link href="/chat">
+                                <Button
+                                    variant="outline"
+                                    className="rounded-full"
+                                >
+                                    Open App
+                                    <MoveRight />
+                                </Button>
+                            </Link>
+                        ) : (
+                            <>
+                                <Link href="/login">
+                                    <Button
+                                        variant="ghost"
+                                        className="rounded-full"
+                                    >
+                                        Login
+                                    </Button>
+                                </Link>
+                                <Link href="/register">
+                                    <Button className="rounded-full">
+                                        Get Started
+                                    </Button>
+                                </Link>
+                            </>
+                        )}
                     </div>
                     <button
                         className="md:hidden"
@@ -84,25 +109,46 @@ export default function Header() {
                                         Features
                                     </Link>
                                 </motion.div>
+                                <Separator />
                                 <motion.div
-                                    className="flex flex-col sm:flex-row gap-2"
+                                    className="w-full"
                                     initial={{ opacity: 0, y: -10 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: 0.2 }}
                                 >
-                                    <Link href="/login">
-                                        <Button
-                                            variant="outline"
-                                            className="w-full"
-                                        >
-                                            Login
-                                        </Button>
-                                    </Link>
-                                    <Link href="/register">
-                                        <Button className="w-full">
-                                            Get Started
-                                        </Button>
-                                    </Link>
+                                    {session ? (
+                                        <Link href="/chat" className="w-full">
+                                            <Button
+                                                variant="outline"
+                                                className="rounded-full w-full"
+                                            >
+                                                Open App
+                                                <MoveRight />
+                                            </Button>
+                                        </Link>
+                                    ) : (
+                                        <div className="flex flex-col sm:flex-row gap-2 w-full">
+                                            <Link
+                                                href="/login"
+                                                className="w-full"
+                                            >
+                                                <Button
+                                                    variant="ghost"
+                                                    className="w-full rounded-full"
+                                                >
+                                                    Login
+                                                </Button>
+                                            </Link>
+                                            <Link
+                                                href="/register"
+                                                className="w-full"
+                                            >
+                                                <Button className="w-full rounded-full">
+                                                    Get Started
+                                                </Button>
+                                            </Link>
+                                        </div>
+                                    )}
                                 </motion.div>
                             </nav>
                         </motion.div>

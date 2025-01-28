@@ -26,9 +26,10 @@ export default function PrivacyPolicy() {
                         Intelliseek platform (the "Platform"), an AI-powered
                         application designed to retrieve and provide insights
                         based on contextually relevant information supplied by
-                        users. The Platform enables users to efficiently store,
-                        organize, and recall their data for enhanced information
-                        management and retrieval.
+                        users. We are committed to protecting the privacy and
+                        security of our users' personal data. This Privacy
+                        Policy explains how we collect, use, and protect
+                        personal data when you use our Platform..
                     </p>
                 </section>
 
