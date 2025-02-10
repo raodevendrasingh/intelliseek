@@ -7,10 +7,31 @@ import { chat, context } from "@/db/schema";
 import { GenerateUUID } from "@/utils/generate-uuid";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
+import { Pinecone } from "@pinecone-database/pinecone";
+import OpenAI from "openai";
 
 const CONTEXT_TYPE_TEXT = "text";
+const OPENAI_MODEL = "text-embedding-ada-002";
 
-const app = new Hono<{ Bindings: CloudflareEnv }>().post(
+if (!process.env.OPENAI_API_KEY) {
+    throw new Error("Missing OPENAI_API_KEY");
+}
+
+if (!process.env.PINECONE_API_KEY || !process.env.PINECONE_INDEX_NAME) {
+    throw new Error("Missing Pinecone configuration");
+}
+
+const openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+});
+
+const pinecone = new Pinecone({
+    apiKey: process.env.PINECONE_API_KEY,
+});
+
+const index = pinecone.Index(process.env.PINECONE_INDEX_NAME);
+
+const app = new Hono().post(
     "/",
     zValidator("json", textContextSchema),
     async (c) => {
@@ -19,21 +40,28 @@ const app = new Hono<{ Bindings: CloudflareEnv }>().post(
                 headers: await headers(),
             });
 
-            if (!session) {
-                return c.json({ error: "Not authenticated" }, 401);
+            if (!session?.user?.id) {
+                return c.json(
+                    { success: false, error: "Not authenticated" },
+                    401,
+                );
             }
 
             // 1. Get context
             const { content } = c.req.valid("json");
+            if (!content?.trim()) {
+                return c.json(
+                    { success: false, error: "Content is required" },
+                    400,
+                );
+            }
+
             const first15Words = content.split(" ").slice(0, 15).join(" ");
-
-            // 2. Create chat title
             const title = createChatTitle(first15Words);
-
-            const db = getDrizzleDb();
             const chatId = GenerateUUID();
+            const contextId = GenerateUUID();
+            const db = getDrizzleDb();
 
-            // 3. Create a new chat
             await db.insert(chat).values({
                 id: chatId,
                 title,
@@ -42,8 +70,6 @@ const app = new Hono<{ Bindings: CloudflareEnv }>().post(
                 updatedAt: new Date(),
             });
 
-            // 4. Add content to the context table
-            const contextId = GenerateUUID();
             await db.insert(context).values({
                 id: contextId,
                 chatId,
@@ -54,52 +80,53 @@ const app = new Hono<{ Bindings: CloudflareEnv }>().post(
                 updatedAt: new Date(),
             });
 
-            // 5. Create embeddings for the context
-            if (c.env) {
-                const { AI, VECTORIZE } = c.env;
+            // 3. Create embeddings using OpenAI
+            const embeddingResponse = await openai.embeddings.create({
+                model: OPENAI_MODEL,
+                input: content,
+            });
 
-                // Debugging
-                console.log("Environment Bindings: ", c.env);
-                console.log("AI Binding: ", AI);
-                console.log("VECTORIZE Binding: ", VECTORIZE);
+            const embedding = embeddingResponse.data[0]?.embedding;
 
-                const embeddingResult = await c.env.AI.run(
-                    "@cf/baai/bge-base-en-v1.5",
-                    {
-                        text: content,
-                    },
-                );
-
-                const embedding = embeddingResult.data[0];
-
-                // 6. Save the embeddings into Vectorize
-                if (embedding && embedding.length > 0) {
-                    await c.env.VECTORIZE.insert([
-                        {
-                            id: GenerateUUID(),
-                            values: embedding,
-                            metadata: { text: content, context_id: contextId },
-                        },
-                    ]);
-                } else {
-                    console.error("Invalid embedding:", embedding);
-                }
-            } else {
-                console.error("Environment not found");
-                return c.json(
-                    { error: "Environment bindings inaccessible" },
-                    500,
-                );
+            if (!Array.isArray(embedding) || embedding.length === 0) {
+                throw new Error("Failed to generate valid embedding");
             }
+
+            // 4. Save the embeddings into Pinecone
+            await index.upsert([
+                {
+                    id: GenerateUUID(),
+                    values: embedding,
+                    metadata: {
+                        text: content,
+                        context_id: contextId,
+                        chat_id: chatId,
+                        user_id: session.user.id,
+                    },
+                },
+            ]);
 
             return c.json({
                 success: true,
-                chatId: chatId,
-                title: title,
+                chatId,
+                title,
             });
         } catch (error) {
-            console.error("Error creating context: ", error);
-            return c.json({ error: "Failed to create context" }, 500);
+            console.error(
+                "Error creating context:",
+                error instanceof Error ? error.message : error,
+            );
+            return c.json(
+                {
+                    success: false,
+                    error: "Failed to create context",
+                    details:
+                        process.env.NODE_ENV === "development"
+                            ? String(error)
+                            : undefined,
+                },
+                500,
+            );
         }
     },
 );
