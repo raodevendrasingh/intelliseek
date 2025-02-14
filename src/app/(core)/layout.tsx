@@ -1,11 +1,10 @@
+"use client";
+
 import { AppSidebar } from "@/components/app-sidebar";
 import {
     Breadcrumb,
     BreadcrumbItem,
-    BreadcrumbLink,
     BreadcrumbList,
-    BreadcrumbPage,
-    BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -14,32 +13,41 @@ import {
     SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { UserMenuDropdown } from "@/components/user-dropdown";
+import { useFetchChatById } from "@/modules/fetch-chat-by-id";
+import { usePathname } from "next/navigation";
 
 export default function CoreLayout({
     children,
 }: {
     children: React.ReactNode;
 }) {
+    const pathname = usePathname();
+    const chatId = pathname.split("/")[2];
+    const { data } = useFetchChatById(chatId);
+
     return (
         <section>
             <SidebarProvider>
                 <AppSidebar />
                 <SidebarInset>
-                    <header className="flex h-14 shrink-0 items-center gap-2 border-b px-4">
+                    <header className="flex h-14 shrink-0 items-center gap-2 px-4">
                         <SidebarTrigger className="-ml-1" />
-                        <Separator
-                            orientation="vertical"
-                            className="mr-2 h-4"
-                        />
-                        <Breadcrumb>
-                            <BreadcrumbList>
-                                <BreadcrumbItem className="hidden md:block">
-                                    <BreadcrumbLink href="#">
-                                        Chat Title
-                                    </BreadcrumbLink>
-                                </BreadcrumbItem>
-                            </BreadcrumbList>
-                        </Breadcrumb>
+
+                        {data && (
+                            <>
+                                <Separator
+                                    orientation="vertical"
+                                    className="mr-2 h-4"
+                                />
+                                <Breadcrumb>
+                                    <BreadcrumbList>
+                                        <BreadcrumbItem className="hidden md:block">
+                                            {data.currentChat.title}
+                                        </BreadcrumbItem>
+                                    </BreadcrumbList>
+                                </Breadcrumb>
+                            </>
+                        )}
                         <UserMenuDropdown />
                     </header>
                     <div className="flex flex-1">{children}</div>

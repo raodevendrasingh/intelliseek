@@ -18,12 +18,16 @@ const app = new Hono()
         }
 
         const { content, chatId } = c.req.valid("json");
+
+        // add user query response generation functionality
+
         return c.json({
             content,
             chatId,
         });
     })
     .get("/", async (c) => {
+        // fetch all chats
         try {
             const session = await auth.api.getSession({
                 headers: await headers(),
@@ -52,8 +56,8 @@ const app = new Hono()
         }
     })
     .get("/:id", async (c) => {
+        // fetch particular chat by id params
         try {
-            const chatId = c.req.param("id");
             const session = await auth.api.getSession({
                 headers: await headers(),
             });
@@ -61,6 +65,8 @@ const app = new Hono()
             if (!session) {
                 return c.json({ error: "Not authenticated" }, 401);
             }
+
+            const chatId = c.req.param("id");
             const db = getDrizzleDb();
 
             const [currentChat] = await db
