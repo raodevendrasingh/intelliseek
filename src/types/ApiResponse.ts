@@ -1,5 +1,6 @@
 export interface ContextApiResponse {
     success: boolean;
-    message: string;
+    chatId: string;
+    title: string;
     fileUrl?: string;
 }

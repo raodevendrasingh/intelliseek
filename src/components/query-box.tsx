@@ -97,13 +97,6 @@ export const QueryBox = ({ windowType, chatId: propChatId }: QueryBoxProps) => {
         }
     };
 
-    // Check for persisted loading state on component mount
-    useEffect(() => {
-        const isLoading = localStorage.getItem("isLoading") === "true";
-        if (isLoading) {
-            setLoading(true);
-        }
-    }, []);
     return (
         <>
             <div className="w-full mx-auto px-3">

@@ -3,7 +3,7 @@ import { zValidator } from "@hono/zod-validator";
 import { textContextSchema } from "@/lib/app-schema";
 import { createChatTitle } from "@/utils/generate-chat-title";
 import { getDrizzleDb } from "@/db/drizzle";
-import { chat, context } from "@/db/schema";
+import { chat, context, messages } from "@/db/schema";
 import { GenerateUUID } from "@/utils/generate-uuid";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
@@ -60,6 +60,7 @@ const app = new Hono().post(
             const title = createChatTitle(first15Words);
             const chatId = GenerateUUID();
             const contextId = GenerateUUID();
+            const messageId = GenerateUUID();
             const db = getDrizzleDb();
 
             await db.insert(chat).values({
@@ -105,6 +106,15 @@ const app = new Hono().post(
                     },
                 },
             ]);
+
+            await db.insert(messages).values({
+                id: messageId,
+                chatId,
+                query: "Context Added to Chat",
+                response: "",
+                createdAt: new Date(),
+                updatedAt: new Date(),
+            });
 
             return c.json({
                 success: true,

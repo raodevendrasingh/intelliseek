@@ -1,8 +1,9 @@
 import { Hono } from "hono";
 import { handle } from "hono/vercel";
 
-import chat from "./chat";
 import hello from "./hello";
+import chat from "./chat";
+import messages from "./messages";
 import text from "./context/text";
 
 export const runtime = "edge";
@@ -12,6 +13,7 @@ const app = new Hono().basePath("/api");
 const routes = app
     .route("/hello", hello)
     .route("/chat", chat)
+    .route("/messages", messages)
     .route("/context/text", text);
 
 export const GET = handle(app);

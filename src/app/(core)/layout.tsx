@@ -14,16 +14,28 @@ import {
 } from "@/components/ui/sidebar";
 import { UserMenuDropdown } from "@/components/user-dropdown";
 import { useFetchChatById } from "@/modules/fetch-chat-by-id";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { toast } from "sonner";
 
 export default function CoreLayout({
     children,
 }: {
     children: React.ReactNode;
 }) {
+    const router = useRouter();
     const pathname = usePathname();
     const chatId = pathname.split("/")[2];
-    const { data } = useFetchChatById(chatId);
+    const { data, isFetched, isError } = useFetchChatById(chatId);
+
+    useEffect(() => {
+        if (chatId && isFetched && (!data || isError)) {
+            router.replace("/chat");
+            toast.error("Error Loading Conversation", {
+                description: "No such conversation exists",
+            });
+        }
+    }, [data, isFetched, isError, chatId, router]);
 
     return (
         <section>
