@@ -29,7 +29,7 @@ type DialogType = "text" | "file" | "link" | null;
 type QueryBoxProps = {
     windowType: "chat" | "home";
     chatId?: string;
-    isQueryLoading: boolean;
+    isQueryLoading?: boolean;
     onLoadingChange: (isLoading: boolean) => void;
 };
 
@@ -104,7 +104,7 @@ export const QueryBox = ({
             <div className="w-full mx-auto px-3">
                 <Card
                     className={clsx(
-                        "min-w-max max-w-2xl w-full mx-auto p-3 space-y-3 bg-accent rounded-3xl",
+                        "min-w-max max-w-3xl w-full mx-auto p-3 space-y-3 bg-accent rounded-3xl",
                     )}
                 >
                     <CardContent className="w-full p-0">

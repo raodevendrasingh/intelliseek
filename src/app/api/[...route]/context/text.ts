@@ -11,7 +11,7 @@ import { Pinecone } from "@pinecone-database/pinecone";
 import OpenAI from "openai";
 
 const CONTEXT_TYPE_TEXT = "text";
-const OPENAI_MODEL = "text-embedding-ada-002";
+const OPENAI_MODEL = "text-embedding-3-small";
 
 if (!process.env.OPENAI_API_KEY) {
     throw new Error("Missing OPENAI_API_KEY");
@@ -119,6 +119,7 @@ const app = new Hono().post(
             return c.json({
                 success: true,
                 chatId,
+                contextId,
                 title,
             });
         } catch (error) {
