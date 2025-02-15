@@ -29,10 +29,16 @@ type DialogType = "text" | "file" | "link" | null;
 type QueryBoxProps = {
     windowType: "chat" | "home";
     chatId?: string;
+    isQueryLoading: boolean;
+    onLoadingChange: (isLoading: boolean) => void;
 };
 
-export const QueryBox = ({ windowType, chatId: propChatId }: QueryBoxProps) => {
-    const [isLoading, setLoading] = useState<boolean>(false);
+export const QueryBox = ({
+    windowType,
+    chatId: propChatId,
+    isQueryLoading,
+    onLoadingChange,
+}: QueryBoxProps) => {
     const [activeDialog, setActiveDialog] = useState<DialogType>(null);
 
     const [chatId, setChatId] = useState<string | null>(propChatId || null);
@@ -62,8 +68,8 @@ export const QueryBox = ({ windowType, chatId: propChatId }: QueryBoxProps) => {
     const totalRows: number = windowType === "home" ? 0 : 2;
 
     const onSubmit = async (queryData: z.infer<typeof querySchema>) => {
-        setLoading(true);
-        localStorage.setItem("isLoading", "true");
+        onLoadingChange(true);
+        form.reset();
         console.log(queryData);
         try {
             const queryBody = { ...queryData, chatId };
@@ -74,8 +80,6 @@ export const QueryBox = ({ windowType, chatId: propChatId }: QueryBoxProps) => {
             if (windowType === "home") {
                 router.push(`/chat/${chatId}`);
             }
-
-            await new Promise((resolve) => setTimeout(resolve, 10000));
 
             const response = await fetch(`/api/chat`, {
                 method: "POST",
@@ -91,9 +95,7 @@ export const QueryBox = ({ windowType, chatId: propChatId }: QueryBoxProps) => {
             console.log(error);
             alert("Error submitting query");
         } finally {
-            setLoading(false);
-            localStorage.removeItem("isLoading");
-            console.log("finally called");
+            onLoadingChange(false);
         }
     };
 
@@ -118,6 +120,18 @@ export const QueryBox = ({ windowType, chatId: propChatId }: QueryBoxProps) => {
                                                     placeholder={placeholderMsg}
                                                     className="resize-none w-full h-full border-0"
                                                     rows={totalRows}
+                                                    onKeyDown={(e) => {
+                                                        if (
+                                                            e.key === "Enter" &&
+                                                            !e.shiftKey &&
+                                                            !isQueryEmpty
+                                                        ) {
+                                                            e.preventDefault();
+                                                            form.handleSubmit(
+                                                                onSubmit,
+                                                            )();
+                                                        }
+                                                    }}
                                                     {...field}
                                                 />
                                             </FormControl>
@@ -149,7 +163,7 @@ export const QueryBox = ({ windowType, chatId: propChatId }: QueryBoxProps) => {
                                 onClick={form.handleSubmit(onSubmit)}
                                 disabled={isQueryEmpty}
                             >
-                                {isLoading ? (
+                                {isQueryLoading ? (
                                     <SpinnerBall
                                         size={32}
                                         className="animate-spin"
