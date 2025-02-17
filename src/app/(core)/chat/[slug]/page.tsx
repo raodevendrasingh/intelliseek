@@ -129,7 +129,9 @@ export default function ChatPage(props: { params: Params }) {
                                 <div
                                     className={clsx(
                                         "border h-fit p-2 rounded-xl",
-                                        index === 0
+                                        index === 0 &&
+                                            chat.query ===
+                                                "Context Added to Chat"
                                             ? "border w-full text-center bg-accent/30"
                                             : "bg-accent max-w-[60%]",
                                     )}

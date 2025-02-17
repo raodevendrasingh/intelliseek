@@ -3,7 +3,7 @@
 import { querySchema } from "@/lib/app-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import {
     Form,
@@ -41,20 +41,12 @@ export const QueryBox = ({
 }: QueryBoxProps) => {
     const [activeDialog, setActiveDialog] = useState<DialogType>(null);
 
-    const [chatId, setChatId] = useState<string | null>(propChatId || null);
-
-    useEffect(() => {
-        if (windowType === "home" && !chatId) {
-            const newChatId = GenerateUUID();
-            setChatId(newChatId);
-        }
-    }, [windowType, chatId]);
-
     const router = useRouter();
     const form = useForm<z.infer<typeof querySchema>>({
         resolver: zodResolver(querySchema),
         defaultValues: {
             content: "",
+            chatId: propChatId,
         },
     });
 
@@ -72,27 +64,55 @@ export const QueryBox = ({
         form.reset();
         console.log(queryData);
         try {
-            const queryBody = { ...queryData, chatId };
-            if (!chatId) {
-                throw new Error("Chat ID is missing");
+            console.log("workflow 2 triggered");
+            let currentChatId = queryData.chatId;
+
+            // Workflow 2: If no chatId exists, create a new chat
+            if (!currentChatId) {
+                currentChatId = GenerateUUID(); // Generate a new chatId
+                const newQueryBody = { ...queryData, chatId: currentChatId };
+
+                // Call the `/api/query` endpoint for workflow 2
+                const queryResponse = await fetch(`/api/query`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(newQueryBody),
+                });
+
+                if (!queryResponse.ok) {
+                    throw new Error("Failed to create chat or process query");
+                }
+
+                router.push(`/chat/${currentChatId}`);
+                return;
             }
 
-            if (windowType === "home") {
-                router.push(`/chat/${chatId}`);
+            // Workflow 1: If chatId exists, use the `/api/chat` endpoint
+            if (currentChatId) {
+                console.log("workflow 1 triggered");
+
+                const chatResponse = await fetch(`/api/chat`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        ...queryData,
+                        chatId: currentChatId,
+                    }),
+                });
+
+                if (!chatResponse.ok) {
+                    throw new Error("Failed to process query");
+                }
+
+                const data = await chatResponse.json();
+                console.log(data);
             }
-
-            const response = await fetch(`/api/chat`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(queryBody),
-            });
-
-            const data = await response.json();
-            console.log(data);
         } catch (error) {
-            console.log(error);
+            console.error(error);
             alert("Error submitting query");
         } finally {
             onLoadingChange(false);
