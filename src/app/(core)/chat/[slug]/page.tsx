@@ -128,12 +128,12 @@ export default function ChatPage(props: { params: Params }) {
                             <div className="flex w-full justify-end pb-2">
                                 <div
                                     className={clsx(
-                                        "border h-fit p-2 rounded-xl",
+                                        "border h-fit p-2 ",
                                         index === 0 &&
                                             chat.query ===
                                                 "Context Added to Chat"
-                                            ? "border w-full text-center bg-accent/30"
-                                            : "bg-accent max-w-[60%]",
+                                            ? "border w-full text-center rounded-xl bg-accent/30"
+                                            : "bg-accent max-w-[60%] rounded-tl-xl rounded-tr-xl rounded-bl-xl",
                                     )}
                                 >
                                     {chat.query}
@@ -142,7 +142,7 @@ export default function ChatPage(props: { params: Params }) {
 
                             {chat.response.length > 0 && (
                                 <div className="flex w-full justify-start">
-                                    <div className="h-fit p-2 rounded-lg">
+                                    <div className="h-fit p-2">
                                         {index === data.messageThread.length - 1
                                             ? animatedResponse // Show animated response for the latest message
                                             : chat.response}

@@ -2,6 +2,9 @@
 
 import {
     DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -11,13 +14,22 @@ import {
     SidebarMenuAction,
     SidebarMenuButton,
     SidebarMenuItem,
+    useSidebar,
 } from "@/components/ui/sidebar";
 import { useFetchChats } from "@/modules/fetch-chats";
-import { Loader2, Trash2 } from "lucide-react";
+import {
+    Archive,
+    Loader2,
+    MoreVertical,
+    TextCursorInput,
+    Trash2,
+} from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 
 export function ChatMenu() {
+    const { isMobile } = useSidebar();
+
     const { data, isLoading, isError, error } = useFetchChats();
 
     if ((!data || isError) && !isLoading) {
@@ -48,15 +60,39 @@ export function ChatMenu() {
                             </SidebarMenuButton>
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                    <SidebarMenuAction
-                                        showOnHover
-                                        onClick={() =>
-                                            handleDeleteChat(item.id)
-                                        }
-                                    >
-                                        <Trash2 className="text-rose-600" />
+                                    <SidebarMenuAction showOnHover>
+                                        <MoreVertical />
+                                        <span className="sr-only">More</span>
                                     </SidebarMenuAction>
                                 </DropdownMenuTrigger>
+                                <DropdownMenuContent
+                                    className="w-40 p-0 rounded-2xl"
+                                    side={isMobile ? "bottom" : "right"}
+                                    align={isMobile ? "end" : "start"}
+                                >
+                                    <div className="bg-accent/30 p-2 group">
+                                        <DropdownMenuItem>
+                                            <TextCursorInput className="text-muted-foreground" />
+                                            <span>Rename</span>
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem>
+                                            <Archive className="text-muted-foreground" />
+                                            <span>Archive</span>
+                                        </DropdownMenuItem>
+                                        <DropdownMenuSeparator className="my-2" />
+                                        <DropdownMenuItem
+                                            className="group/item"
+                                            onClick={() =>
+                                                handleDeleteChat(item.id)
+                                            }
+                                        >
+                                            <Trash2 className="text-muted-foreground group-hover/item:text-rose-500" />
+                                            <span className="group-hover/item:text-rose-500">
+                                                Delete
+                                            </span>
+                                        </DropdownMenuItem>
+                                    </div>
+                                </DropdownMenuContent>
                             </DropdownMenu>
                         </SidebarMenuItem>
                     ))
