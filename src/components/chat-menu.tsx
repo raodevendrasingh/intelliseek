@@ -25,20 +25,42 @@ import {
     Trash2,
 } from "lucide-react";
 import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 export function ChatMenu() {
     const { isMobile } = useSidebar();
+    const pathname = usePathname();
+    const router = useRouter();
+    const currentChatId = pathname.split("/")[2];
 
-    const { data, isLoading, isError, error } = useFetchChats();
+    const { data, isLoading, isError, error, refetch } = useFetchChats();
 
     if ((!data || isError) && !isLoading) {
         console.log("error fetching data", error);
         toast.error("Failed to fetch chats");
     }
 
-    const handleDeleteChat = (id: string) => {
-        return console.log("chat deleted with id: ", id);
+    const handleDeleteChat = async (id: string) => {
+        try {
+            const res = await fetch(`/api/chat/${id}`, {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+            if (res.ok) {
+                if (currentChatId === id) {
+                    router.push("/chat");
+                }
+                console.log("chat deleted with id: ", id);
+                toast.success("Chat deleted successfully");
+                return refetch();
+            }
+        } catch (error) {
+            console.error("Error deleting chat:", error);
+            toast.error("Failed to delete chat");
+        }
     };
 
     return (

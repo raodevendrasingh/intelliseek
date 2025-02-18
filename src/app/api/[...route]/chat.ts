@@ -199,6 +199,42 @@ const app = new Hono()
             console.error("Error fetching chat: ", error);
             return c.json({ error: "Failed to fetch chat" }, 500);
         }
+    })
+    .delete("/:id", async (c) => {
+        try {
+            const session = await auth.api.getSession({
+                headers: await headers(),
+            });
+
+            if (!session) {
+                return c.json({ error: "Not authenticated" }, 401);
+            }
+
+            const chatId = c.req.param("id");
+            const db = getDrizzleDb();
+
+            const [currentChat] = await db
+                .select()
+                .from(chat)
+                .where(eq(chat.id, chatId));
+
+            if (!currentChat) {
+                return c.json({ error: "Chat not found" }, 404);
+            }
+
+            await db.delete(chat).where(eq(chat.id, chatId));
+
+            return c.json(
+                {
+                    success: true,
+                    message: "Chat deleted successfully",
+                },
+                200,
+            );
+        } catch (error) {
+            console.error("Error deleting chat: ", error);
+            return c.json({ error: "Failed to delete chat" }, 500);
+        }
     });
 
 export default app;
