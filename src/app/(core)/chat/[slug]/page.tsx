@@ -17,13 +17,18 @@ export default function ChatPage(props: { params: Params }) {
     const chatId = params.slug;
 
     const [isQueryLoading, setQueryLoading] = useState<boolean>(false);
-    const [animatedResponse, setAnimatedResponse] = useState("");
-    const scrollRef = useRef<HTMLDivElement>(null);
-    const viewportRef = useRef<HTMLDivElement>(null);
-    const [hasInitialLoad, setHasInitialLoad] = useState(false);
+    const [isUserScrolling, setIsUserScrolling] = useState<boolean>(false);
+    const [aiResponse, setAiResponse] = useState<string>("");
 
-    // Track the last displayed response
-    const lastDisplayedResponse = useRef<string>("");
+    const viewportRef = useRef<HTMLDivElement>(null);
+
+    const handleStreamUpdate = (chunk: string, isFinalChunk?: boolean) => {
+        setAiResponse((prev) => prev + chunk);
+
+        if (isFinalChunk) {
+            setTimeout(() => setAiResponse(""), 50);
+        }
+    };
 
     const {
         data,
@@ -40,70 +45,45 @@ export default function ChatPage(props: { params: Params }) {
         refetchMessages();
     }, [isQueryLoading]);
 
-    useEffect(() => {
-        // Auto-scroll when new messages arrive
-        if (scrollRef.current) {
-            scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-        }
-    }, [data, animatedResponse]);
-
-    // Function to animate the response word-by-word
-    const animateResponse = (response: string) => {
-        setAnimatedResponse("");
-        let words = response.split(" ");
-        let index = 0;
-
-        const interval = setInterval(() => {
-            if (index < words.length) {
-                setAnimatedResponse(
-                    (prev) => prev + (prev ? " " : "") + words[index],
-                );
-                index++;
-            } else {
-                clearInterval(interval);
-                // Update the last displayed response
-                lastDisplayedResponse.current = response;
+    const scrollToBottom = (smooth = true) => {
+        if (viewportRef.current) {
+            const viewport = viewportRef.current.querySelector(
+                "[data-radix-scroll-area-viewport]",
+            ) as HTMLElement;
+            if (viewport && !isUserScrolling) {
+                requestAnimationFrame(() => {
+                    viewport.scrollTo({
+                        top: viewport.scrollHeight,
+                        behavior: smooth ? "smooth" : "auto",
+                    });
+                });
             }
-        }, 50); // Adjust speed of word-by-word animation
+        }
     };
 
+    // Detect if user manually scrolls up
     useEffect(() => {
-        if (data && data.messageThread.length > 0) {
-            const lastMessage =
-                data.messageThread[data.messageThread.length - 1];
-            if (lastMessage.response) {
-                if (!hasInitialLoad) {
-                    // On first load, set response immediately
-                    setAnimatedResponse(lastMessage.response);
-                    setHasInitialLoad(true);
-                    // Update the last displayed response
-                    lastDisplayedResponse.current = lastMessage.response;
-                } else if (
-                    lastMessage.response !== lastDisplayedResponse.current
-                ) {
-                    // Only animate for new responses
-                    animateResponse(lastMessage.response);
-                }
-            }
-        }
-    }, [data, hasInitialLoad]);
+        const viewport = viewportRef.current?.querySelector(
+            "[data-radix-scroll-area-viewport]",
+        ) as HTMLElement;
+        if (!viewport) return;
 
-    useEffect(() => {
-        const scrollToBottom = () => {
-            if (viewportRef.current) {
-                const viewport = viewportRef.current.querySelector(
-                    "[data-radix-scroll-area-viewport]",
-                );
-                if (viewport) {
-                    viewport.scrollTop = viewport.scrollHeight;
-                }
-            }
+        const handleScroll = () => {
+            const isNearBottom =
+                viewport.scrollHeight - viewport.scrollTop <=
+                viewport.clientHeight + 50;
+            setIsUserScrolling(!isNearBottom);
         };
 
-        if (data?.messageThread?.length || isQueryLoading || animatedResponse) {
-            scrollToBottom();
+        viewport.addEventListener("scroll", handleScroll);
+        return () => viewport.removeEventListener("scroll", handleScroll);
+    }, []);
+
+    useEffect(() => {
+        if (data?.messageThread?.length || isQueryLoading || aiResponse) {
+            scrollToBottom(false);
         }
-    }, [data, isQueryLoading, animatedResponse]);
+    }, [data, isQueryLoading, aiResponse]);
 
     return (
         <div className="w-full mx-auto h-[calc(100vh-56px)] flex">
@@ -120,51 +100,72 @@ export default function ChatPage(props: { params: Params }) {
                     </div>
                 ) : (
                     data &&
-                    data.messageThread.map((chat, index) => (
-                        <div
-                            key={index}
-                            className="flex flex-col gap-2 w-full items-start py-2"
-                        >
-                            <div className="flex w-full justify-end pb-2">
-                                <div
-                                    className={clsx(
-                                        "border h-fit p-2 ",
-                                        index === 0 &&
-                                            chat.query ===
-                                                "Context Added to Chat"
-                                            ? "border w-full text-center rounded-xl bg-accent/30"
-                                            : "bg-accent max-w-[60%] rounded-tl-xl rounded-tr-xl rounded-bl-xl",
-                                    )}
-                                >
-                                    {chat.query}
-                                </div>
-                            </div>
+                    data.messageThread.map((chat, index) => {
+                        const isLastMessage =
+                            index === data.messageThread.length - 1;
 
-                            {chat.response.length > 0 && (
-                                <div className="flex w-full justify-start">
-                                    <div className="h-fit p-2">
-                                        {index === data.messageThread.length - 1
-                                            ? animatedResponse // Show animated response for the latest message
-                                            : chat.response}
+                        return (
+                            <div
+                                key={index}
+                                className="flex flex-col gap-2 w-full items-start py-2"
+                            >
+                                {/* User Query */}
+                                <div className="flex w-full justify-end pb-2">
+                                    <div
+                                        className={clsx(
+                                            "border h-fit p-2",
+                                            index === 0 &&
+                                                chat.query ===
+                                                    "Context Added to Chat"
+                                                ? "border w-full text-center rounded-xl bg-accent/30"
+                                                : "bg-accent max-w-[60%] rounded-tl-xl rounded-tr-xl rounded-bl-xl",
+                                        )}
+                                    >
+                                        {chat.query}
                                     </div>
                                 </div>
-                            )}
-                        </div>
-                    ))
+
+                                {/* render streamed response */}
+                                {isLastMessage && aiResponse && (
+                                    <div className="flex w-full justify-start">
+                                        <div className="h-fit p-2">
+                                            {aiResponse}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* render static response from db */}
+                                {chat.response.length > 0 && (
+                                    <div className="flex w-full justify-start">
+                                        <div className="h-fit p-2">
+                                            {chat.response}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        );
+                    })
                 )}
-                {isQueryLoading && (
+
+                {isQueryLoading && !aiResponse && (
                     <div className="flex justify-start w-20">
                         <div className="loader" />
                     </div>
                 )}
+
                 <ScrollBar className="hidden" />
             </ScrollArea>
+
             <div className="absolute bottom-10 flex flex-col w-full mx-auto">
                 <QueryBox
                     windowType="chat"
                     chatId={chatId}
                     isQueryLoading={isQueryLoading}
-                    onLoadingChange={setQueryLoading}
+                    onStreamUpdate={handleStreamUpdate}
+                    onLoadingChange={(loading) => {
+                        setQueryLoading(loading);
+                        if (!loading) setAiResponse(""); // Ensure state resets after query ends
+                    }}
                 />
             </div>
         </div>

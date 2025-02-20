@@ -9,6 +9,7 @@ import { eq, desc } from "drizzle-orm";
 import { GenerateUUID } from "@/utils/generate-uuid";
 import OpenAI from "openai";
 import { Pinecone } from "@pinecone-database/pinecone";
+import { streamText } from "hono/streaming";
 
 const OPENAI_MODEL = "text-embedding-3-small";
 
@@ -32,7 +33,6 @@ const index = pinecone.Index(process.env.PINECONE_INDEX_NAME);
 
 const app = new Hono()
     .post("/", zValidator("json", querySchema), async (c) => {
-        // handle user queries
         try {
             const session = await auth.api.getSession({
                 headers: await headers(),
@@ -90,7 +90,6 @@ const app = new Hono()
                 },
             ]);
 
-            // Retrieve relevant context from vector DB
             const similarDocs = await index.query({
                 vector: embedding,
                 topK: 5,
@@ -101,8 +100,7 @@ const app = new Hono()
                 .map((doc) => doc.metadata?.text ?? "")
                 .join("\n");
 
-            // Generate AI response
-            const aiResponse = await openai.chat.completions.create({
+            const aiStream = await openai.chat.completions.create({
                 model: "gpt-4o-mini-2024-07-18",
                 messages: [
                     {
@@ -113,24 +111,30 @@ const app = new Hono()
                     },
                     { role: "user", content: content },
                 ],
+                stream: true,
             });
 
-            const generatedResponse =
-                aiResponse.choices[0]?.message?.content ||
-                "Sorry, I couldn't generate a response.";
+            let generatedResponse = "";
 
-            await db
-                .update(messages)
-                .set({
-                    response: generatedResponse,
-                    updatedAt: new Date(),
-                })
-                .where(eq(messages.id, messageId));
+            return streamText(c, async (stream) => {
+                try {
+                    for await (const chunk of aiStream) {
+                        const content = chunk.choices[0]?.delta?.content || "";
+                        generatedResponse += content;
+                        await stream.write(content);
+                    }
 
-            return c.json({
-                content,
-                chatId,
-                response: generatedResponse,
+                    await db
+                        .update(messages)
+                        .set({
+                            response: generatedResponse,
+                            updatedAt: new Date(),
+                        })
+                        .where(eq(messages.id, messageId));
+                } catch (error) {
+                    console.error("Stream error:", error);
+                    await stream.write(`\n[ERROR: Stream interrupted]`);
+                }
             });
         } catch (error) {
             console.error("Error handling request:", error);

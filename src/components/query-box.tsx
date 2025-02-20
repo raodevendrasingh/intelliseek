@@ -30,14 +30,16 @@ type QueryBoxProps = {
     windowType: "chat" | "home";
     chatId?: string;
     isQueryLoading?: boolean;
-    onLoadingChange: (isLoading: boolean) => void;
+    onLoadingChange?: (isLoading: boolean) => void;
+    onStreamUpdate?: (chunk: string) => void;
 };
 
 export const QueryBox = ({
     windowType,
     chatId: propChatId,
     isQueryLoading,
-    onLoadingChange,
+    onLoadingChange = () => {},
+    onStreamUpdate = () => {},
 }: QueryBoxProps) => {
     const [activeDialog, setActiveDialog] = useState<DialogType>(null);
 
@@ -64,15 +66,14 @@ export const QueryBox = ({
         form.reset();
         console.log(queryData);
         try {
-            console.log("workflow 2 triggered");
             let currentChatId = queryData.chatId;
 
-            // Workflow 2: If no chatId exists, create a new chat
+            // query api '/api/query' for chats without context
             if (!currentChatId) {
-                currentChatId = GenerateUUID(); // Generate a new chatId
+                console.log("workflow 2 triggered");
+                currentChatId = GenerateUUID();
                 const newQueryBody = { ...queryData, chatId: currentChatId };
 
-                // Call the `/api/query` endpoint for workflow 2
                 const queryResponse = await fetch(`/api/query`, {
                     method: "POST",
                     headers: {
@@ -89,7 +90,7 @@ export const QueryBox = ({
                 return;
             }
 
-            // Workflow 1: If chatId exists, use the `/api/chat` endpoint
+            // chat api '/api/chat' for chats with context
             if (currentChatId) {
                 console.log("workflow 1 triggered");
 
@@ -108,8 +109,18 @@ export const QueryBox = ({
                     throw new Error("Failed to process query");
                 }
 
-                const data = await chatResponse.json();
-                console.log(data);
+                const reader = chatResponse.body?.getReader();
+                const decoder = new TextDecoder();
+
+                if (reader) {
+                    while (true) {
+                        const { done, value } = await reader.read();
+                        if (done) break;
+                        const chunk = decoder.decode(value, { stream: true });
+
+                        onStreamUpdate(chunk);
+                    }
+                }
             }
         } catch (error) {
             console.error(error);
