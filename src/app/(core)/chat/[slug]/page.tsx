@@ -3,10 +3,11 @@
 import { QueryBox } from "@/components/query-box";
 import { useFetchChatMessages } from "@/modules/fetch-chat-messages";
 import { useFetchChats } from "@/modules/fetch-chats";
-import { use, useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, use } from "react";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import clsx from "clsx";
 import { Loader2 } from "lucide-react";
+import { MarkdownResponse } from "@/components/markdown-response";
 
 export const runtime = "edge";
 
@@ -22,12 +23,8 @@ export default function ChatPage(props: { params: Params }) {
 
     const viewportRef = useRef<HTMLDivElement>(null);
 
-    const handleStreamUpdate = (chunk: string, isFinalChunk?: boolean) => {
+    const handleStreamUpdate = (chunk: string) => {
         setAiResponse((prev) => prev + chunk);
-
-        if (isFinalChunk) {
-            setTimeout(() => setAiResponse(""), 50);
-        }
     };
 
     const {
@@ -125,21 +122,21 @@ export default function ChatPage(props: { params: Params }) {
                                     </div>
                                 </div>
 
-                                {/* render streamed response */}
+                                {/* Render streamed response */}
                                 {isLastMessage && aiResponse && (
                                     <div className="flex w-full justify-start">
-                                        <div className="h-fit p-2">
+                                        <MarkdownResponse>
                                             {aiResponse}
-                                        </div>
+                                        </MarkdownResponse>
                                     </div>
                                 )}
 
-                                {/* render static response from db */}
+                                {/* Render static response from DB */}
                                 {chat.response.length > 0 && (
                                     <div className="flex w-full justify-start">
-                                        <div className="h-fit p-2">
+                                        <MarkdownResponse>
                                             {chat.response}
-                                        </div>
+                                        </MarkdownResponse>
                                     </div>
                                 )}
                             </div>
@@ -153,7 +150,7 @@ export default function ChatPage(props: { params: Params }) {
                     </div>
                 )}
 
-                <ScrollBar className="hidden" />
+                <ScrollBar className="" />
             </ScrollArea>
 
             <div className="absolute bottom-10 flex flex-col w-full mx-auto">
@@ -164,7 +161,7 @@ export default function ChatPage(props: { params: Params }) {
                     onStreamUpdate={handleStreamUpdate}
                     onLoadingChange={(loading) => {
                         setQueryLoading(loading);
-                        if (!loading) setAiResponse(""); // Ensure state resets after query ends
+                        if (!loading) setAiResponse("");
                     }}
                 />
             </div>

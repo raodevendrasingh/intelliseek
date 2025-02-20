@@ -42,7 +42,7 @@ export default function CoreLayout({
             <SidebarProvider>
                 <AppSidebar />
                 <SidebarInset>
-                    <header className="flex h-14 shrink-0 items-center gap-2 px-4">
+                    <header className="flex h-14 shrink-0 items-center gap-2 px-4 bg-accent/30">
                         <SidebarTrigger className="-ml-1" />
 
                         {data && (
@@ -62,7 +62,7 @@ export default function CoreLayout({
                         )}
                         <UserMenuDropdown />
                     </header>
-                    <div className="flex flex-1">{children}</div>
+                    <div className="flex flex-1 bg-accent/30">{children}</div>
                 </SidebarInset>
             </SidebarProvider>
         </section>

@@ -105,9 +105,34 @@ const app = new Hono()
                 messages: [
                     {
                         role: "system",
-                        content:
-                            "You are an AI assistant. Answer the following question using the provided context.\n\nContext:\n" +
-                            retrievedContext,
+                        content: `
+                You are an AI assistant. Format your response using **proper markdown**. Follow these rules **exactly**:
+
+                ### **🔹 Headings**
+                - Use **# Title** for main sections.
+                - Use **## Subtitle** for subsections.
+                - Use **### Subheadings** for smaller sections.
+                - **Ensure 2 blank lines before every heading** for readability.
+
+                ### **🔹 Lists**
+                - Use **numbered lists (1., 2., 3.)** when order matters.
+                - Use **unordered bullet points (-, *, +) where needed.**
+                - **Insert a blank line before and after every list**.
+
+                ### **🔹 Spacing & Separators**
+                - **Separate major sections with \`---\` (horizontal lines).**
+                - **Ensure a blank line between all paragraphs.**
+
+                ### **🔹 Code Blocks & Tables**
+                - Use **triple backticks \` + \`\`\` + \`** for multi-line code.
+                - Properly **align tables**.
+                - Wrap inline code using **single backticks (\`like this\`)**.
+
+                ---
+
+                **Context:**
+                ${retrievedContext}
+                            `,
                     },
                     { role: "user", content: content },
                 ],
