@@ -7,29 +7,9 @@ import { chat, context, messages } from "@/db/schema";
 import { GenerateUUID } from "@/utils/generate-uuid";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
-import { Pinecone } from "@pinecone-database/pinecone";
-import OpenAI from "openai";
+import { index, openai, OPENAI_MODEL } from "@/lib/ai-config";
 
 const CONTEXT_TYPE_TEXT = "text";
-const OPENAI_MODEL = "text-embedding-3-small";
-
-if (!process.env.OPENAI_API_KEY) {
-    throw new Error("Missing OPENAI_API_KEY");
-}
-
-if (!process.env.PINECONE_API_KEY || !process.env.PINECONE_INDEX_NAME) {
-    throw new Error("Missing Pinecone configuration");
-}
-
-const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
-});
-
-const pinecone = new Pinecone({
-    apiKey: process.env.PINECONE_API_KEY,
-});
-
-const index = pinecone.Index(process.env.PINECONE_INDEX_NAME);
 
 const app = new Hono().post(
     "/",
@@ -47,7 +27,6 @@ const app = new Hono().post(
                 );
             }
 
-            // 1. Get context
             const { content } = c.req.valid("json");
             if (!content?.trim()) {
                 return c.json(
@@ -81,7 +60,6 @@ const app = new Hono().post(
                 updatedAt: new Date(),
             });
 
-            // 3. Create embeddings using OpenAI
             const embeddingResponse = await openai.embeddings.create({
                 model: OPENAI_MODEL,
                 input: content,
@@ -93,13 +71,11 @@ const app = new Hono().post(
                 throw new Error("Failed to generate valid embedding");
             }
 
-            // 4. Save the embeddings into Pinecone
-            await index.upsert([
+            await index.namespace(`user_${session.user.id}`).upsert([
                 {
                     id: GenerateUUID(),
                     values: embedding,
                     metadata: {
-                        text: content,
                         context_id: contextId,
                         chat_id: chatId,
                         user_id: session.user.id,

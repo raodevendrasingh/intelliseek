@@ -7,29 +7,8 @@ import { headers } from "next/headers";
 import { chat, messages } from "@/db/schema";
 import { eq, desc } from "drizzle-orm";
 import { GenerateUUID } from "@/utils/generate-uuid";
-import OpenAI from "openai";
-import { Pinecone } from "@pinecone-database/pinecone";
 import { streamText } from "hono/streaming";
-
-const OPENAI_MODEL = "text-embedding-3-small";
-
-if (!process.env.OPENAI_API_KEY) {
-    throw new Error("Missing OPENAI_API_KEY");
-}
-
-if (!process.env.PINECONE_API_KEY || !process.env.PINECONE_INDEX_NAME) {
-    throw new Error("Missing Pinecone configuration");
-}
-
-const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
-});
-
-const pinecone = new Pinecone({
-    apiKey: process.env.PINECONE_API_KEY,
-});
-
-const index = pinecone.Index(process.env.PINECONE_INDEX_NAME);
+import { index, openai, OPENAI_MODEL } from "@/lib/ai-config";
 
 const app = new Hono()
     .post("/", zValidator("json", querySchema), async (c) => {
@@ -78,23 +57,24 @@ const app = new Hono()
                 throw new Error("Failed to generate valid embedding");
             }
 
-            await index.upsert([
+            await index.namespace(`user_${session.user.id}`).upsert([
                 {
                     id: GenerateUUID(),
                     values: embedding,
                     metadata: {
-                        text: content,
                         chat_id: chatId,
                         user_id: session.user.id,
                     },
                 },
             ]);
 
-            const similarDocs = await index.query({
-                vector: embedding,
-                topK: 5,
-                includeMetadata: true,
-            });
+            const similarDocs = await index
+                .namespace(`user_${session.user.id}`)
+                .query({
+                    vector: embedding,
+                    topK: 5,
+                    includeMetadata: true,
+                });
 
             const retrievedContext = similarDocs.matches
                 .map((doc) => doc.metadata?.text ?? "")
@@ -106,33 +86,31 @@ const app = new Hono()
                     {
                         role: "system",
                         content: `
-                You are an AI assistant. Format your response using **proper markdown**. Follow these rules **exactly**:
+                            You are an AI assistant. **Answer on the basis of this context only, if the context is not enough to answer the question, say "I need more context to assist you properly."**
+                            ${retrievedContext}
 
-                ### **🔹 Headings**
-                - Use **# Title** for main sections.
-                - Use **## Subtitle** for subsections.
-                - Use **### Subheadings** for smaller sections.
-                - **Ensure 2 blank lines before every heading** for readability.
+                            Format your response using **proper markdown**. Follow these rules **exactly**:
 
-                ### **🔹 Lists**
-                - Use **numbered lists (1., 2., 3.)** when order matters.
-                - Use **unordered bullet points (-, *, +) where needed.**
-                - **Insert a blank line before and after every list**.
+                            ### **🔹 Headings**
+                            - Use **# Title** for main sections.
+                            - Use **## Subtitle** for subsections.
+                            - Use **### Subheadings** for smaller sections.
+                            - **Ensure 2 blank lines before every heading** for readability.
 
-                ### **🔹 Spacing & Separators**
-                - **Separate major sections with \`---\` (horizontal lines).**
-                - **Ensure a blank line between all paragraphs.**
+                            ### **🔹 Lists**
+                            - Use **numbered lists (1., 2., 3.)** when order matters.
+                            - Use **unordered bullet points (-, *, +) where needed.**
+                            - **Insert a blank line before and after every list**.
 
-                ### **🔹 Code Blocks & Tables**
-                - Use **triple backticks \` + \`\`\` + \`** for multi-line code.
-                - Properly **align tables**.
-                - Wrap inline code using **single backticks (\`like this\`)**.
+                            ### **🔹 Spacing & Separators**
+                            - **Separate major sections with \`---\` (horizontal lines).**
+                            - **Ensure a blank line between all paragraphs.**
 
-                ---
-
-                **Context:**
-                ${retrievedContext}
-                            `,
+                            ### **🔹 Code Blocks & Tables**
+                            - Use **triple backticks \` + \`\`\` + \`** for multi-line code.
+                            - Properly **align tables**.
+                            - Wrap inline code using **single backticks (\`like this\`)**.
+                        `,
                     },
                     { role: "user", content: content },
                 ],
