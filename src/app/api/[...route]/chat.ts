@@ -57,7 +57,7 @@ const app = new Hono()
                 throw new Error("Failed to generate valid embedding");
             }
 
-            await index.namespace(`user_${session.user.id}`).upsert([
+            await index.namespace(`user_${session.user.id}_${chatId}`).upsert([
                 {
                     id: GenerateUUID(),
                     values: embedding,
@@ -69,7 +69,7 @@ const app = new Hono()
             ]);
 
             const similarDocs = await index
-                .namespace(`user_${session.user.id}`)
+                .namespace(`user_${session.user.id}_${chatId}`)
                 .query({
                     vector: embedding,
                     topK: 5,
@@ -224,6 +224,10 @@ const app = new Hono()
                 .select()
                 .from(chat)
                 .where(eq(chat.id, chatId));
+
+            await index
+                .namespace(`user_${session.user.id}_${chatId}`)
+                .deleteAll();
 
             if (!currentChat) {
                 return c.json({ error: "Chat not found" }, 404);

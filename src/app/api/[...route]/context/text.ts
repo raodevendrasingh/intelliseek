@@ -71,7 +71,7 @@ const app = new Hono().post(
                 throw new Error("Failed to generate valid embedding");
             }
 
-            await index.namespace(`user_${session.user.id}`).upsert([
+            await index.namespace(`user_${session.user.id}_${chatId}`).upsert([
                 {
                     id: GenerateUUID(),
                     values: embedding,

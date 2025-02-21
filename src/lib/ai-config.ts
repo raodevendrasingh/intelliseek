@@ -15,8 +15,11 @@ export const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
 });
 
-export const pinecone = new Pinecone({
+export const pc = new Pinecone({
     apiKey: process.env.PINECONE_API_KEY,
 });
 
-export const index = pinecone.index(process.env.PINECONE_INDEX_NAME);
+export const index = pc.index(
+    process.env.PINECONE_INDEX_NAME,
+    process.env.PINECONE_INDEX_HOST,
+);
