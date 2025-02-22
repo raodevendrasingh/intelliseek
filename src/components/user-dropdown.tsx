@@ -1,7 +1,6 @@
 "use client";
 
-import React from "react";
-import { Settings, LogOut } from "lucide-react";
+import { LogOut } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -11,15 +10,12 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/components/ui/popover";
+import SettingsDialog from "@/components/settings/settings-dialog";
 
 export const UserMenuDropdown = () => {
     const router = useRouter();
     const { data: session } = authClient.useSession();
     const currentUser = session?.user;
-
-    const handleItemClick = (path: string) => {
-        router.push(path);
-    };
 
     const handleLogout = async () => {
         await authClient.signOut();
@@ -50,7 +46,7 @@ export const UserMenuDropdown = () => {
                         className="w-52 p-0 rounded-2xl"
                         align="end"
                     >
-                        <div className="p-2 bg-accent/30">
+                        <div className="p-2 bg-accent/30 rounded-2xl">
                             <div className="flex items-center justify-start gap-3 p-3 border-b border-border cursor-default">
                                 <div className="flex text-sm flex-col truncate">
                                     <p className="font-medium">
@@ -60,14 +56,7 @@ export const UserMenuDropdown = () => {
                             </div>
 
                             <div className="py-2 w-full">
-                                <Button
-                                    onClick={() => handleItemClick("/settings")}
-                                    variant="ghost"
-                                    className="flex justify-start rounded-lg w-full px-3"
-                                >
-                                    <Settings className="mr-3 size-4" />
-                                    <span>Settings</span>
-                                </Button>
+                                <SettingsDialog />
                             </div>
                             <hr className="border-border" />
                             <div className="pt-2">
