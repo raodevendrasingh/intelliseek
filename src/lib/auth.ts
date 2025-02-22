@@ -15,6 +15,11 @@ export const auth = betterAuth({
             verification,
         },
     }),
+    user: {
+        deleteUser: {
+            enabled: true,
+        },
+    },
     plugins: [openAPI()],
     emailAndPassword: {
         enabled: true,

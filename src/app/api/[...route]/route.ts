@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { handle } from "hono/vercel";
 
 import hello from "./hello";
+import user from "./user";
 import chat from "./chat";
 import query from "./query";
 import messages from "./messages";
@@ -13,6 +14,7 @@ const app = new Hono().basePath("/api");
 
 const routes = app
     .route("/hello", hello)
+    .route("/user", user)
     .route("/chat", chat)
     .route("/query", query)
     .route("/messages", messages)

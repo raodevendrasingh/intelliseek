@@ -1,9 +1,15 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
+import { authClient } from "@/lib/auth-client";
+import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { toast } from "sonner";
 
 export const DataWindow = () => {
     const router = useRouter();
+    const [isLoading, setLoading] = useState<boolean>(false);
 
     const handleDataExport = async () => {
         console.log("handleDataExport");
@@ -33,7 +39,7 @@ export const DataWindow = () => {
     };
 
     const handleDeleteChats = async () => {
-        console.log("handleDeleteChats");
+        setLoading(true);
         try {
             const res = await fetch("/api/chats/delete", {
                 method: "DELETE",
@@ -56,13 +62,15 @@ export const DataWindow = () => {
                     : "Failed to delete chats",
             );
             console.error("Delete chats error:", error);
+        } finally {
+            setLoading(false);
         }
     };
 
     const handleDeleteAccount = async () => {
-        console.log("handleDeleteAccount");
+        setLoading(true);
         try {
-            const res = await fetch("/api/user/delete", {
+            const res = await fetch("/api/user", {
                 method: "DELETE",
                 headers: {
                     "Content-Type": "application/json",
@@ -74,6 +82,7 @@ export const DataWindow = () => {
                 throw new Error(error.message || "Failed to delete account");
             }
 
+            await authClient.deleteUser();
             toast.success("Account deleted successfully");
             router.push("/");
         } catch (error) {
@@ -83,6 +92,8 @@ export const DataWindow = () => {
                     : "Failed to delete account",
             );
             console.error("Delete account error:", error);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -122,10 +133,14 @@ export const DataWindow = () => {
                     </p>
                 </div>
                 <Button
-                    className="bg-rose-700 hover:bg-rose-600 text-white rounded-lg"
+                    className="bg-rose-700 hover:bg-rose-600 text-white rounded-lg w-20"
                     onClick={handleDeleteAccount}
                 >
-                    Delete
+                    {isLoading ? (
+                        <Loader2 size={16} className="animate-spin" />
+                    ) : (
+                        "Delete"
+                    )}
                 </Button>
             </div>
         </div>
