@@ -16,6 +16,7 @@
         "typegen": "wrangler types --env-interface CloudflareEnv env.d.ts",
         "generate": "drizzle-kit generate",
         "migrate": "wrangler d1 migrations apply ragchat --remote",
+        "push": "drizzle-kit push",
         "studio": "drizzle-kit studio"
     },
     "dependencies": {
