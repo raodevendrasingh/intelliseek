@@ -1,28 +1,20 @@
 name = "intelliseek"
-compatibility_date = "2024-12-30"
+compatibility_date = "2025-02-01"
 compatibility_flags = ["nodejs_compat"]
 pages_build_output_dir = ".vercel/output/static"
 
 [observability]
 enabled = true
 
-
 [[d1_databases]]
 binding = "DB"
-database_name = "docverse"
-database_id = "f63826e9-53e6-450f-9d05-bade35e89a66"
+database_name = "intellibase"
+database_id = "3c222cd7-d868-48de-bd6d-9284135de817"
 migrations_dir = "./src/db/migrations"
 
-[ai]
-binding = "AI"
-
-[[vectorize]]
-binding = "VECTORIZE"
-index_name = "dropbase-index"
-
 [[r2_buckets]]
-bucket_name = "ragstore"
-binding = "ragstore"
+bucket_name = "intellistore"
+binding = "intellistore"
 
 [vars]
 NEXT_PUBLIC_BASE_URL = "https://intelliseek.pages.dev"

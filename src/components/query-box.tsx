@@ -3,7 +3,7 @@
 import { querySchema } from "@/lib/app-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import {
     Form,
@@ -29,26 +29,26 @@ type DialogType = "text" | "file" | "link" | null;
 type QueryBoxProps = {
     windowType: "chat" | "home";
     chatId?: string;
+    isQueryLoading?: boolean;
+    onLoadingChange?: (isLoading: boolean) => void;
+    onStreamUpdate?: (chunk: string) => void;
 };
 
-export const QueryBox = ({ windowType, chatId: propChatId }: QueryBoxProps) => {
-    const [isLoading, setLoading] = useState<boolean>(false);
+export const QueryBox = ({
+    windowType,
+    chatId: propChatId,
+    isQueryLoading,
+    onLoadingChange = () => {},
+    onStreamUpdate = () => {},
+}: QueryBoxProps) => {
     const [activeDialog, setActiveDialog] = useState<DialogType>(null);
-
-    const [chatId, setChatId] = useState<string | null>(propChatId || null);
-
-    useEffect(() => {
-        if (windowType === "home" && !chatId) {
-            const newChatId = GenerateUUID();
-            setChatId(newChatId);
-        }
-    }, [windowType, chatId]);
 
     const router = useRouter();
     const form = useForm<z.infer<typeof querySchema>>({
         resolver: zodResolver(querySchema),
         defaultValues: {
             content: "",
+            chatId: propChatId,
         },
     });
 
@@ -62,54 +62,80 @@ export const QueryBox = ({ windowType, chatId: propChatId }: QueryBoxProps) => {
     const totalRows: number = windowType === "home" ? 0 : 2;
 
     const onSubmit = async (queryData: z.infer<typeof querySchema>) => {
-        setLoading(true);
-        localStorage.setItem("isLoading", "true");
+        onLoadingChange(true);
+        form.reset();
         console.log(queryData);
         try {
-            const queryBody = { ...queryData, chatId };
-            if (!chatId) {
-                throw new Error("Chat ID is missing");
+            let currentChatId = queryData.chatId;
+
+            // query api '/api/query' for chats without context
+            if (!currentChatId) {
+                console.log("workflow 2 triggered");
+                currentChatId = GenerateUUID();
+                const newQueryBody = { ...queryData, chatId: currentChatId };
+
+                const queryResponse = await fetch(`/api/query`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(newQueryBody),
+                });
+
+                if (!queryResponse.ok) {
+                    throw new Error("Failed to create chat or process query");
+                }
+
+                router.push(`/chat/${currentChatId}`);
+                return;
             }
 
-            if (windowType === "home") {
-                router.push(`/chat/${chatId}`);
+            // chat api '/api/chat' for chats with context
+            if (currentChatId) {
+                console.log("workflow 1 triggered");
+
+                const chatResponse = await fetch(`/api/chat`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        ...queryData,
+                        chatId: currentChatId,
+                    }),
+                });
+
+                if (!chatResponse.ok) {
+                    throw new Error("Failed to process query");
+                }
+
+                const reader = chatResponse.body?.getReader();
+                const decoder = new TextDecoder();
+
+                if (reader) {
+                    while (true) {
+                        const { done, value } = await reader.read();
+                        if (done) break;
+                        const chunk = decoder.decode(value, { stream: true });
+
+                        onStreamUpdate(chunk);
+                    }
+                }
             }
-
-            await new Promise((resolve) => setTimeout(resolve, 10000));
-
-            const response = await fetch(`/api/chat`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(queryBody),
-            });
-
-            const data = await response.json();
-            console.log(data);
         } catch (error) {
-            console.log(error);
+            console.error(error);
             alert("Error submitting query");
         } finally {
-            setLoading(false);
-            localStorage.removeItem("isLoading");
-            console.log("finally called");
+            onLoadingChange(false);
         }
     };
 
-    // Check for persisted loading state on component mount
-    useEffect(() => {
-        const isLoading = localStorage.getItem("isLoading") === "true";
-        if (isLoading) {
-            setLoading(true);
-        }
-    }, []);
     return (
         <>
             <div className="w-full mx-auto px-3">
                 <Card
                     className={clsx(
-                        "min-w-max max-w-2xl w-full mx-auto p-3 space-y-3 bg-accent rounded-3xl",
+                        "min-w-max max-w-3xl w-full mx-auto p-3 space-y-3 bg-accent rounded-3xl",
                     )}
                 >
                     <CardContent className="w-full p-0">
@@ -125,6 +151,18 @@ export const QueryBox = ({ windowType, chatId: propChatId }: QueryBoxProps) => {
                                                     placeholder={placeholderMsg}
                                                     className="resize-none w-full h-full border-0"
                                                     rows={totalRows}
+                                                    onKeyDown={(e) => {
+                                                        if (
+                                                            e.key === "Enter" &&
+                                                            !e.shiftKey &&
+                                                            !isQueryEmpty
+                                                        ) {
+                                                            e.preventDefault();
+                                                            form.handleSubmit(
+                                                                onSubmit,
+                                                            )();
+                                                        }
+                                                    }}
                                                     {...field}
                                                 />
                                             </FormControl>
@@ -156,7 +194,7 @@ export const QueryBox = ({ windowType, chatId: propChatId }: QueryBoxProps) => {
                                 onClick={form.handleSubmit(onSubmit)}
                                 disabled={isQueryEmpty}
                             >
-                                {isLoading ? (
+                                {isQueryLoading ? (
                                     <SpinnerBall
                                         size={32}
                                         className="animate-spin"

@@ -1,7 +1,6 @@
 "use client";
 
-import React from "react";
-import { Settings, LogOut } from "lucide-react";
+import { LogOut } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -11,15 +10,12 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/components/ui/popover";
+import SettingsDialog from "@/components/settings/settings-dialog";
 
 export const UserMenuDropdown = () => {
     const router = useRouter();
     const { data: session } = authClient.useSession();
     const currentUser = session?.user;
-
-    const handleItemClick = (path: string) => {
-        router.push(path);
-    };
 
     const handleLogout = async () => {
         await authClient.signOut();
@@ -47,37 +43,32 @@ export const UserMenuDropdown = () => {
                         </Button>
                     </PopoverTrigger>
                     <PopoverContent
-                        className="w-52 p-2 rounded-2xl bg-accent/30 backdrop-blur-md"
+                        className="w-52 p-0 rounded-2xl"
                         align="end"
                     >
-                        <div className="flex items-center justify-start gap-3 p-3 border-b border-border cursor-default">
-                            <div className="flex text-sm flex-col truncate">
-                                <p className="font-medium">
-                                    {currentUser.name}
-                                </p>
+                        <div className="p-2 bg-accent/30 rounded-2xl">
+                            <div className="flex items-center justify-start gap-3 p-3 border-b border-border cursor-default">
+                                <div className="flex text-sm flex-col truncate">
+                                    <p className="font-medium">
+                                        {currentUser.name}
+                                    </p>
+                                </div>
                             </div>
-                        </div>
 
-                        <div className="py-2 w-full">
-                            <Button
-                                onClick={() => handleItemClick("/settings")}
-                                variant="ghost"
-                                className="flex justify-start rounded-xl w-full px-3"
-                            >
-                                <Settings className="mr-3 size-4" />
-                                <span>Settings</span>
-                            </Button>
-                        </div>
-                        <hr className="border-border" />
-                        <div className="pt-2">
-                            <Button
-                                onClick={handleLogout}
-                                variant="ghost"
-                                className="flex justify-start rounded-xl w-full hover:text-rose-600 px-3"
-                            >
-                                <LogOut className="mr-3 size-4" />
-                                <span>Logout</span>
-                            </Button>
+                            <div className="py-2 w-full">
+                                <SettingsDialog />
+                            </div>
+                            <hr className="border-border" />
+                            <div className="pt-2">
+                                <Button
+                                    onClick={handleLogout}
+                                    variant="ghost"
+                                    className="flex justify-start rounded-lg w-full hover:text-rose-500 px-3"
+                                >
+                                    <LogOut className="mr-3 size-4" />
+                                    <span>Logout</span>
+                                </Button>
+                            </div>
                         </div>
                     </PopoverContent>
                 </Popover>

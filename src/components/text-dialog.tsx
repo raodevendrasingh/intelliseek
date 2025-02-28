@@ -24,6 +24,7 @@ import { LoaderButton } from "./loader-button";
 import { Button } from "./ui/button";
 import { textContextSchema } from "@/lib/app-schema";
 import { ContextApiResponse } from "@/types/ApiResponse";
+import { useRouter } from "next/navigation";
 
 interface TextDialogProps {
     open: boolean;
@@ -39,6 +40,7 @@ export default function TextDialog({ open, onOpenChange }: TextDialogProps) {
         },
     });
 
+    const router = useRouter();
     const isContentEmpty = form.watch("content") === "";
 
     const onSubmit = async (queryData: z.infer<typeof textContextSchema>) => {
@@ -51,20 +53,22 @@ export default function TextDialog({ open, onOpenChange }: TextDialogProps) {
                 },
                 body: JSON.stringify(queryData),
             });
-            const data = (await response.json()) as ContextApiResponse;
-            console.log(data);
-            if (response.ok) {
-                console.log("Context uploaded, you can close this dialog!");
-                form.reset();
+            const data: ContextApiResponse = await response.json();
+            if (data.success) {
+                router.push(`/chat/${data.chatId}`);
                 onOpenChange(false);
+                form.reset();
+            } else {
+                throw new Error("Failed to create context");
             }
         } catch (error) {
-            console.error("Error submitting context:", error);
-            alert("Error submitting context");
+            console.error("Error adding context:", error);
+            alert("Error adding context");
+        } finally {
+            setPending(false);
         }
-
-        setPending(false);
     };
+
     return (
         <Dialog open={open}>
             <DialogContent hideCloseButton className="">

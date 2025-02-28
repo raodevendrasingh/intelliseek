@@ -62,11 +62,15 @@ export const verification = sqliteTable("verification", {
     id: text("id").primaryKey(),
     identifier: text("identifier").notNull(),
     value: text("value").notNull(),
-    expiresAt: integer("created_at", { mode: "timestamp" })
+    expiresAt: integer("expires_at", { mode: "timestamp" })
         .notNull()
         .default(sql`CURRENT_TIMESTAMP`),
-    createdAt: integer("created_at", { mode: "timestamp" }),
-    updatedAt: integer("updated_at", { mode: "timestamp" }),
+    createdAt: integer("created_at", { mode: "timestamp" })
+        .notNull()
+        .default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+        .notNull()
+        .default(sql`CURRENT_TIMESTAMP`),
 });
 
 export const chat = sqliteTable("chat", {
@@ -83,7 +87,7 @@ export const chat = sqliteTable("chat", {
         .default(sql`CURRENT_TIMESTAMP`),
 });
 
-export const context = sqliteTable("context", {
+export const resources = sqliteTable("resources", {
     id: text("id").primaryKey(),
     chatId: text("chat_id")
         .notNull()
@@ -91,8 +95,28 @@ export const context = sqliteTable("context", {
     type: text("type", { enum: ["text", "file", "image"] })
         .notNull()
         .default("text"),
-    content: text("content").notNull(),
+    content: text("content"),
     filePath: text("file_path"),
+    metadata: text("metadata", { mode: "json" }),
+    createdAt: integer("created_at", { mode: "timestamp" })
+        .notNull()
+        .default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+        .notNull()
+        .default(sql`CURRENT_TIMESTAMP`),
+});
+
+export const embeddings = sqliteTable("embeddings", {
+    id: text("id").primaryKey(),
+    resourceId: text("resource_id")
+        .notNull()
+        .references(() => resources.id, { onDelete: "cascade" }),
+    chatId: text("chat_id")
+        .notNull()
+        .references(() => chat.id, { onDelete: "cascade" }),
+    content: text("content").notNull(),
+    pineconeId: text("pinecone_id").notNull(),
+    chunkIndex: integer("chunk_index").notNull(),
     createdAt: integer("created_at", { mode: "timestamp" })
         .notNull()
         .default(sql`CURRENT_TIMESTAMP`),
@@ -106,8 +130,9 @@ export const messages = sqliteTable("messages", {
     chatId: text("chat_id")
         .notNull()
         .references(() => chat.id, { onDelete: "cascade" }),
-    query: text("query").notNull(),
-    response: text("response").notNull(),
+    role: text("role", { enum: ["user", "assistant"] }).notNull(),
+    content: text("content").notNull(),
+    metadata: text("metadata", { mode: "json" }),
     createdAt: integer("created_at", { mode: "timestamp" })
         .notNull()
         .default(sql`CURRENT_TIMESTAMP`),

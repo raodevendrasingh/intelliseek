@@ -1,27 +1,13 @@
 {
-    "version": "7",
-    "dialect": "sqlite",
-    "entries": [
-        {
-            "idx": 0,
-            "version": "6",
-            "when": 1737528727075,
-            "tag": "0000_late_veda",
-            "breakpoints": true
-        },
-        {
-            "idx": 1,
-            "version": "6",
-            "when": 1737650213529,
-            "tag": "0001_sparkling_maestro",
-            "breakpoints": true
-        },
-        {
-            "idx": 2,
-            "version": "6",
-            "when": 1737653135991,
-            "tag": "0002_illegal_ink",
-            "breakpoints": true
-        }
-    ]
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1740761355870,
+      "tag": "0000_fearless_celestials",
+      "breakpoints": true
+    }
+  ]
 }

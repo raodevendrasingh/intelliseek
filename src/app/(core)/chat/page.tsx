@@ -1,6 +1,5 @@
 "use client";
 
-import { BrandLogo } from "@/app/(marketing)/_components/brand-logo";
 import { QueryBox } from "@/components/query-box";
 
 export default function ChatPage() {
@@ -9,7 +8,7 @@ export default function ChatPage() {
             <div className="flex flex-col w-full mx-auto pt-40">
                 <div className="pb-16">
                     <h1 className="text-4xl font-bold text-center text-primary/90">
-                        What can help you with?
+                        What can I help with?
                     </h1>
                 </div>
                 <QueryBox windowType="home" />
