@@ -96,8 +96,7 @@ export default function ChatPage(props: { params: Params }) {
                         />
                     </div>
                 ) : (
-                    data &&
-                    data.messageThread.map((chat, index) => {
+                    data?.messageThread.map((chat, index) => {
                         const isLastMessage =
                             index === data.messageThread.length - 1;
 
@@ -112,13 +111,11 @@ export default function ChatPage(props: { params: Params }) {
                                         className={clsx(
                                             "border h-fit p-2",
                                             index === 0 &&
-                                                chat.query ===
-                                                    "Context Added to Chat"
-                                                ? "border w-full text-center rounded-xl bg-accent/30"
-                                                : "bg-accent max-w-[60%] rounded-tl-xl rounded-tr-xl rounded-bl-xl",
+                                                chat.role === "user" &&
+                                                "bg-accent max-w-[60%] rounded-tl-xl rounded-tr-xl rounded-bl-xl",
                                         )}
                                     >
-                                        {chat.query}
+                                        {chat.content}
                                     </div>
                                 </div>
 
@@ -132,10 +129,10 @@ export default function ChatPage(props: { params: Params }) {
                                 )}
 
                                 {/* Render static response from DB */}
-                                {chat.response.length > 0 && (
+                                {chat.role === "assistant" && (
                                     <div className="flex w-full justify-start">
                                         <MarkdownResponse>
-                                            {chat.response}
+                                            {chat.content}
                                         </MarkdownResponse>
                                     </div>
                                 )}

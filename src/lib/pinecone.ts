@@ -1,4 +1,4 @@
-import { Pinecone } from "@pinecone-database/pinecone";
+// import { Pinecone } from "@pinecone-database/pinecone";
 import OpenAI from "openai";
 
 export const OPENAI_MODEL = "text-embedding-3-small";
@@ -15,11 +15,11 @@ export const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
 });
 
-export const pc = new Pinecone({
-    apiKey: process.env.PINECONE_API_KEY,
-});
+// export const pc = new Pinecone({
+//     apiKey: process.env.PINECONE_API_KEY,
+// });
 
-export const index = pc.index(
-    process.env.PINECONE_INDEX_NAME,
-    process.env.PINECONE_INDEX_HOST,
-);
+// export const index = pc.index(
+//     process.env.PINECONE_INDEX_NAME,
+//     process.env.PINECONE_INDEX_HOST,
+// );

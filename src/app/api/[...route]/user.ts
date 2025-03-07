@@ -1,17 +1,15 @@
 import { getDrizzleDb } from "@/db/drizzle";
 import { chat, user } from "@/db/schema";
-import { index } from "@/lib/ai-config";
 import { auth } from "@/lib/auth";
 import { eq } from "drizzle-orm";
 import { Hono } from "hono";
-import { headers } from "next/headers";
 
 const app = new Hono();
 
 app.delete("/", async (c) => {
     try {
         const session = await auth.api.getSession({
-            headers: await headers(),
+            headers: c.req.raw.headers,
         });
 
         if (!session) {
@@ -36,21 +34,21 @@ app.delete("/", async (c) => {
 
         console.log("chatIds: ", chatIds);
 
-        if (chatIds.length > 0) {
-            for (const chat of chatIds) {
-                try {
-                    await index
-                        .namespace(`user_${session.user.id}_${chat.id}`)
-                        .deleteAll();
-                } catch (e) {
-                    console.error(
-                        `Failed to delete namespace for chat ${chat.id}:`,
-                        e,
-                    );
-                    throw e;
-                }
-            }
-        }
+        // if (chatIds.length > 0) {
+        //     for (const chat of chatIds) {
+        //         try {
+        //             await index
+        //                 .namespace(`user_${session.user.id}_${chat.id}`)
+        //                 .deleteAll();
+        //         } catch (e) {
+        //             console.error(
+        //                 `Failed to delete namespace for chat ${chat.id}:`,
+        //                 e,
+        //             );
+        //             throw e;
+        //         }
+        //     }
+        // }
 
         return c.json(
             {

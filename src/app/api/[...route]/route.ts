@@ -4,9 +4,7 @@ import { handle } from "hono/vercel";
 import hello from "./hello";
 import user from "./user";
 import chat from "./chat";
-import query from "./query";
 import messages from "./messages";
-import text from "./context/text";
 
 export const runtime = "edge";
 
@@ -16,9 +14,7 @@ const routes = app
     .route("/hello", hello)
     .route("/user", user)
     .route("/chat", chat)
-    .route("/query", query)
-    .route("/messages", messages)
-    .route("/context/text", text);
+    .route("/messages", messages);
 
 export const GET = handle(app);
 export const POST = handle(app);

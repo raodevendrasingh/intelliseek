@@ -1,5 +1,3 @@
-"use server";
-
 import { betterFetch } from "@better-fetch/fetch";
 import { NextResponse, type NextRequest } from "next/server";
 import type { Session } from "@/lib/auth";
@@ -13,7 +11,7 @@ export async function middleware(request: NextRequest) {
     const { data: session } = await betterFetch<Session>(
         "/api/auth/get-session",
         {
-            baseURL: env.NEXT_PUBLIC_BASE_URL!,
+            baseURL: env.NEXT_PUBLIC_BASE_URL,
             headers: {
                 cookie: request.headers.get("cookie") || "",
             },

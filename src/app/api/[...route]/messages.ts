@@ -1,14 +1,13 @@
 import { getDrizzleDb } from "@/db/drizzle";
 import { auth } from "@/lib/auth";
 import { Hono } from "hono";
-import { headers } from "next/headers";
 import { messages } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
 const app = new Hono().get("/:id", async (c) => {
     try {
         const session = await auth.api.getSession({
-            headers: await headers(),
+            headers: c.req.raw.headers,
         });
 
         if (!session) {
