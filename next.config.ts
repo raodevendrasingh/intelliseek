@@ -1,6 +1,10 @@
 import type { NextConfig } from "next";
-import "@/env";
+import { env } from "@/env";
 
-const nextConfig: NextConfig = {};
+const nextConfig: NextConfig = {
+    env: {
+        ...env,
+    },
+};
 
 export default nextConfig;
