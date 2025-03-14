@@ -1,8 +1,8 @@
 import { Hono } from "hono";
-import { getDrizzleDb } from "@/db/drizzle";
 import { auth } from "@/lib/auth";
 import { chat } from "@/db/schema";
 import { eq, desc } from "drizzle-orm";
+import { db } from "@/db/drizzle";
 
 const app = new Hono()
     .get("/", async (c) => {
@@ -15,7 +15,6 @@ const app = new Hono()
             if (!session) {
                 return c.json({ error: "Not authenticated" }, 401);
             }
-            const db = getDrizzleDb();
 
             const chats = await db
                 .select()
@@ -46,7 +45,6 @@ const app = new Hono()
             }
 
             const chatId = c.req.param("id");
-            const db = getDrizzleDb();
 
             const [currentChat] = await db
                 .select()
@@ -79,7 +77,6 @@ const app = new Hono()
             }
 
             const chatId = c.req.param("id");
-            const db = getDrizzleDb();
 
             const [currentChat] = await db
                 .select()

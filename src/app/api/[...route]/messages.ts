@@ -1,8 +1,8 @@
-import { getDrizzleDb } from "@/db/drizzle";
 import { auth } from "@/lib/auth";
 import { Hono } from "hono";
 import { messages } from "@/db/schema";
 import { eq } from "drizzle-orm";
+import { db } from "@/db/drizzle";
 
 const app = new Hono().get("/:id", async (c) => {
     try {
@@ -15,8 +15,6 @@ const app = new Hono().get("/:id", async (c) => {
         }
 
         const chatId = c.req.param("id");
-
-        const db = getDrizzleDb();
 
         const messageThread = await db
             .select()

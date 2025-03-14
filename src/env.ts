@@ -3,6 +3,7 @@ import { z } from "zod";
 
 export const env = createEnv({
     server: {
+        DATABASE_URL: z.string().min(1),
         CLOUDFLARE_API_TOKEN: z.string().min(1),
         CLOUDFLARE_ACCOUNT_ID: z.string().min(1),
         CLOUDFLARE_DATABASE_ID: z.string().min(1),
@@ -24,6 +25,7 @@ export const env = createEnv({
     },
     runtimeEnv: {
         NODE_ENV: process.env.NODE_ENV,
+        DATABASE_URL: process.env.DATABASE_URL,
         NEXT_PUBLIC_BASE_URL: process.env.NEXT_PUBLIC_BASE_URL,
         CLOUDFLARE_API_TOKEN: process.env.CLOUDFLARE_API_TOKEN,
         CLOUDFLARE_ACCOUNT_ID: process.env.CLOUDFLARE_ACCOUNT_ID,
