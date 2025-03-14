@@ -1,21 +1,19 @@
+import { initOpenNextCloudflareForDev } from "@opennextjs/cloudflare";
 import type { NextConfig } from "next";
-import { setupDevPlatform } from "@cloudflare/next-on-pages/next-dev";
-import "@/env";
+
+initOpenNextCloudflareForDev();
 
 const nextConfig: NextConfig = {
     experimental: {
         serverActions: {
             bodySizeLimit: "2mb",
         },
+        nodeMiddleware: true,
+    },
+    reactStrictMode: true,
+    env: {
+        CLOUDFLARE_DATABASE_ID: process.env.CLOUDFLARE_DATABASE_ID || "",
     },
 };
-
-if (process.env.NODE_ENV === "development") {
-    (async () => {
-        await setupDevPlatform({
-            persist: true,
-        });
-    })();
-}
 
 export default nextConfig;

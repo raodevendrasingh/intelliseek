@@ -21,6 +21,7 @@ let browserQueryClient: QueryClient | undefined = undefined;
 function getQueryClient() {
     if (isServer) {
         return makeQueryClient();
+        // biome-ignore lint/style/noUselessElse: <explanation>
     } else {
         if (!browserQueryClient) browserQueryClient = makeQueryClient();
         return browserQueryClient;

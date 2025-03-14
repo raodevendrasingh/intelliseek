@@ -9,8 +9,6 @@ import clsx from "clsx";
 import { Loader2 } from "lucide-react";
 import { MarkdownResponse } from "@/components/markdown-response";
 
-export const runtime = "edge";
-
 type Params = Promise<{ slug: string }>;
 
 export default function ChatPage(props: { params: Params }) {

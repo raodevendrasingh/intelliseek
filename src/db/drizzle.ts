@@ -1,5 +1,5 @@
 import { drizzle } from "drizzle-orm/d1";
-import { getRequestContext } from "@cloudflare/next-on-pages";
+import { getCloudflareContext } from "@opennextjs/cloudflare";
 
 let db: ReturnType<typeof drizzle>;
 
@@ -10,7 +10,7 @@ async function initDb() {
         if (process.env.NODE_ENV === "production") {
             db = drizzle(process.env.DB as unknown as D1Database);
         } else {
-            const { env } = getRequestContext();
+            const { env } = getCloudflareContext();
             db = drizzle(env.DB);
         }
         return db;

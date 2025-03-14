@@ -6,8 +6,6 @@ import user from "./user";
 import chat from "./chat";
 import messages from "./messages";
 
-export const runtime = "edge";
-
 const app = new Hono().basePath("/api");
 
 const routes = app

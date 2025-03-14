@@ -1,22 +1,22 @@
 import { betterFetch } from "@better-fetch/fetch";
 import { NextResponse, type NextRequest } from "next/server";
 import type { Session } from "@/lib/auth";
-import { env } from "@/env";
+
+if (!process.env.NEXT_PUBLIC_BASE_URL) {
+    throw new Error("Missing NEXT_PUBLIC_BASE_URL environment variable");
+}
 
 const privateRoutes = ["/chat/*", "/settings/*"];
 
 const authRoutes = ["/login", "/register", "/verify"];
 
 export async function middleware(request: NextRequest) {
-    const { data: session } = await betterFetch<Session>(
-        "/api/auth/get-session",
-        {
-            baseURL: env.NEXT_PUBLIC_BASE_URL,
-            headers: {
-                cookie: request.headers.get("cookie") || "",
-            },
+    const { data: session } = await betterFetch<Session>("/api/auth/session", {
+        baseURL: process.env.NEXT_PUBLIC_BASE_URL,
+        headers: {
+            cookie: request.headers.get("cookie") || "",
         },
-    );
+    });
 
     const pathName = request.nextUrl.pathname;
 

@@ -1,5 +1,8 @@
 import { hc } from "hono/client";
-import { AppType } from "@/app/api/[...route]/route";
-import { env } from "@/env";
+import type { AppType } from "@/app/api/[...route]/route";
 
-export const client = hc<AppType>(env.NEXT_PUBLIC_BASE_URL!);
+if (!process.env.NEXT_PUBLIC_BASE_URL) {
+    throw new Error("Missing NEXT_PUBLIC_BASE_URL environment variable");
+}
+
+export const client = hc<AppType>(process.env.NEXT_PUBLIC_BASE_URL);

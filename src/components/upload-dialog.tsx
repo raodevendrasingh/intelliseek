@@ -15,7 +15,7 @@ import { Input } from "./ui/input";
 import { AlertCircle, Upload } from "lucide-react";
 import { Progress } from "./ui/progress";
 import { MAX_FILE_SIZE } from "@/utils/constants";
-import { ContextApiResponse } from "@/types/ApiResponse";
+import type { ContextApiResponse } from "@/types/ApiResponse";
 import { GetFileIcon } from "@/utils/get-file-icon";
 
 interface UploadDialogProps {
@@ -54,9 +54,9 @@ export default function UploadDialog({
     const [error, setError] = useState<string>("");
 
     const formatFileSize = (bytes: number) => {
-        if (bytes < 1024) return bytes + " B";
-        if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
-        return (bytes / (1024 * 1024)).toFixed(1) + " MB";
+        if (bytes < 1024) return `${bytes} B`;
+        if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+        return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
     };
 
     const handleFileChange = async (
