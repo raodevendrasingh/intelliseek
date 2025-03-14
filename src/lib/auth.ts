@@ -1,12 +1,12 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { getDrizzleDb } from "@/db/drizzle";
 import { openAPI } from "better-auth/plugins";
 import { user, session, account, verification } from "@/db/schema";
 import { env } from "@/env";
+import { db } from "@/db/drizzle";
 
 export const auth = betterAuth({
-    database: drizzleAdapter(getDrizzleDb(), {
+    database: drizzleAdapter(db, {
         provider: "sqlite",
         schema: {
             user,

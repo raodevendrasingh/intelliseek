@@ -21,10 +21,10 @@ let browserQueryClient: QueryClient | undefined = undefined;
 function getQueryClient() {
     if (isServer) {
         return makeQueryClient();
-    } else {
-        if (!browserQueryClient) browserQueryClient = makeQueryClient();
-        return browserQueryClient;
     }
+
+    if (!browserQueryClient) browserQueryClient = makeQueryClient();
+    return browserQueryClient;
 }
 
 export default function QueryProviders({
