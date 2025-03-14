@@ -16,11 +16,7 @@ export const env = createEnv({
     client: {
         NEXT_PUBLIC_BASE_URL: z.string().min(1),
     },
-    shared: {
-        NODE_ENV: z.enum(["development", "production"]),
-    },
     runtimeEnv: {
-        NODE_ENV: process.env.NODE_ENV,
         DATABASE_URL: process.env.DATABASE_URL,
         NEXT_PUBLIC_BASE_URL: process.env.NEXT_PUBLIC_BASE_URL,
         OPENAI_API_KEY: process.env.OPENAI_API_KEY,
